@@ -1,3 +1,33 @@
-#gjs {
-    border: 3px solid #444;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.gjs-editor .gjs-cv-canvas {
+    height: calc(100% - 60px);
+    left: auto;
+    right: 0;
+    top: 60px;
+}
+
+.gjs-one-bg {
+    background-color: #5fb899 !important;
+}
+
+#blocks, .layers-container {
+    position: absolute;
+    top: 60px;
+    width: 15%;
+}
+
+.gjs-blocks-c .gjs-block {
+    margin: 10px auto;
+    width: 100px;
+    height: auto;
+    min-height: auto;
+}
+
+.gjs-blocks-c{
+    width: 100%;
 }
