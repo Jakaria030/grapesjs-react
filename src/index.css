@@ -1,33 +1,337 @@
+/* ─── RESET ───────────────────────────────────── */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-.gjs-editor .gjs-cv-canvas {
-    height: calc(100% - 60px);
-    left: auto;
-    right: 0;
-    top: 60px;
-}
-
-.gjs-one-bg {
-    background-color: #5fb899 !important;
-}
-
-#blocks, .layers-container {
-    position: absolute;
-    top: 60px;
-    width: 15%;
-}
-
-.gjs-blocks-c .gjs-block {
-    margin: 10px auto;
-    width: 100px;
-    height: auto;
-    min-height: auto;
-}
-
-.gjs-blocks-c{
+html,
+body,
+#root {
     width: 100%;
+    height: 100%;
+}
+
+/* ─── LAYOUT ──────────────────────────────────── */
+.editor-wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    height: 100vh;
+    background: #1a1a2e;
+    color: #fff;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* ─── TOPBAR ──────────────────────────────────── */
+.topbar {
+    height: 52px;
+    min-height: 52px;
+    background: #16213e;
+    border-bottom: 1px solid #0f3460;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 6px;
+    z-index: 10;
+}
+
+.topbar-logo {
+    font-size: 17px;
+    font-weight: 800;
+    color: #e94560;
+    letter-spacing: -0.5px;
+    margin-right: 4px;
+    white-space: nowrap;
+}
+
+.topbar-divider {
+    width: 1px;
+    height: 24px;
+    background: #0f3460;
+    margin: 0 6px;
+    flex-shrink: 0;
+}
+
+/* Pushes items after it to the right */
+.topbar-spacer {
+    flex: 1;
+}
+
+.topbar-btn {
+    padding: 6px 14px;
+    background: #0f3460;
+    border: 1px solid #1a4a8a;
+    border-radius: 5px;
+    color: #ccc;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.topbar-btn:hover {
+    background: #1a4a8a;
+    color: #fff;
+}
+
+.preview-btn {
+    background: #0f3460;
+    border-color: #1a6a8a;
+    color: #5bc8e8;
+}
+
+.preview-btn:hover {
+    background: #1a6a8a;
+    color: #fff;
+}
+
+.export-btn {
+    background: #e94560;
+    border-color: #e94560;
+    color: #fff;
+}
+
+.export-btn:hover {
+    background: #c73652;
+    border-color: #c73652;
+}
+
+/* ─── BODY ROW ────────────────────────────────── */
+.editor-body {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* ─── SIDEBARS ────────────────────────────────── */
+.sidebar {
+    background: #16213e;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: width 0.3s ease;
+    width: 250px;
+}
+
+.left-sidebar {
+    border-right: 1px solid #0f3460;
+}
+
+.right-sidebar {
+    border-left: 1px solid #0f3460;
+}
+
+.sidebar.collapsed {
+    width: 36px;
+}
+
+.sidebar-toggle {
+    display: block;
+    width: 100%;
+    background: #0f3460;
+    border: none;
+    border-bottom: 1px solid #1a4a8a;
+    color: #fff;
+    padding: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s ease;
+    flex-shrink: 0;
+}
+
+.sidebar-toggle:hover {
+    background: #e94560;
+}
+
+.sidebar-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 12px;
+    scrollbar-width: thin;
+    scrollbar-color: #0f3460 transparent;
+}
+
+/* ─── TABS ────────────────────────────────────── */
+.tab-bar {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 12px;
+    background: #0f3460;
+    padding: 4px;
+    border-radius: 6px;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 6px 0;
+    background: transparent;
+    border: none;
+    color: #888;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+    color: #fff;
+}
+
+.tab-btn.active {
+    background: #e94560;
+    color: #fff;
+}
+
+.tab-content {
+    padding: 4px 0;
+}
+
+.tab-placeholder {
+    color: #555;
+    font-size: 12px;
+    text-align: center;
+    padding: 24px 8px;
+    line-height: 1.6;
+}
+
+/* ─── BLOCKS ──────────────────────────────────── */
+.blocks-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.block-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    padding: 12px 8px;
+    background: #0f3460;
+    border: 1px solid #1a4a8a;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.block-item:hover {
+    background: #e94560;
+    border-color: #e94560;
+    transform: translateY(-2px);
+}
+
+.block-icon {
+    font-size: 20px;
+}
+
+.block-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #ccc;
+    text-align: center;
+}
+
+.block-item:hover .block-label {
+    color: #fff;
+}
+
+/* ─── RIGHT SIDEBAR ───────────────────────────── */
+.sidebar-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #e94560;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #0f3460;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.selected-tag {
+    font-size: 12px;
+    color: #5bc8e8;
+    background: #0f3460;
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+    font-family: monospace;
+}
+
+.style-properties {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.style-row {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.style-label {
+    font-size: 11px;
+    color: #777;
+    font-weight: 600;
+}
+
+.style-input {
+    background: #0f3460;
+    border: 1px solid #1a4a8a;
+    border-radius: 4px;
+    color: #fff;
+    padding: 6px 8px;
+    font-size: 12px;
+    outline: none;
+    transition: border-color 0.2s ease;
+    width: 100%;
+}
+
+.style-input:focus {
+    border-color: #e94560;
+}
+
+.style-input::placeholder {
+    color: #3a5a8a;
+}
+
+/* ─── CANVAS ──────────────────────────────────── */
+.canvas-area {
+    flex: 1;
+    overflow: hidden;
+    background: #111827;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#gjs {
+    width: 100%;
+    height: 100%;
+}
+
+/* ─── HIDE GRAPESJS DEFAULT UI ────────────────── */
+.gjs-toolbar {
+    display: none !important;
+}
+
+.gjs-badge {
+    display: none !important;
+}
+
+.gjs-resizer {
+    display: none !important;
+}
+
+.gjs-cv-canvas {
+    top: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
 }
