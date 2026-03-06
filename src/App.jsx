@@ -1,43 +1,71 @@
-import 'grapesjs/dist/css/grapes.min.css';
+import { useEffect, useRef } from 'react';
 import grapesjs from 'grapesjs';
-import { useEffect } from 'react';
-import ComponentsPlugin from './plugins/ComponentsPlugin';
-import TopPanel from './panels/TopPanel';
-import DownloadCodeCommand from './commands/DownloadCodeCommand';
-import ResetLocalStorageCommand from './commands/ResetLocalStorageCommand';
+import 'grapesjs/dist/css/grapes.min.css';
+import './index.css'
+import TopBar from './components/TopBar';
+import LeftSidebar from './components/LeftSidebar';
+import RightSidebar from './components/RightSidebar';
 
+function App() {
+  const editorRef = useRef(null);
 
-const App = () => {
   useEffect(() => {
-    const editor = grapesjs.init({
-      container: '#gjs',
-      height: '100vh',
-      storageManager: {
-        type: 'local',
-        autosave: true,
-        autoload: true,
-        stepsBeforeSave: 1,
-      },
-      panels: { defaults: [] },
+    // Only init once
+    if (editorRef.current) return;
 
-      plugins: [ComponentsPlugin],
-      blockManager: { appendTo: "#blocks" },
+    editorRef.current = grapesjs.init({
+      container: '#gjs',
+      height: '100%',
+      width: '100%',
+      storageManager: false,
+
+      // Remove all default panels
+      panels: {
+        defaults: [],
+      },
+
+      // Remove default block manager UI
+      blockManager: {
+        appendTo: null,
+        blocks: [],
+      },
+
+      // Remove default style manager UI
+      styleManager: {
+        appendTo: null,
+        sectors: [],
+      },
+
+      // Remove default layer manager UI
+      layerManager: {
+        appendTo: null,
+      },
+
+      // Remove default trait manager UI
+      traitManager: {
+        appendTo: null,
+      }
+
     });
 
-    TopPanel(editor);
-    DownloadCodeCommand(editor);
-    ResetLocalStorageCommand(editor);
-
-    return () => editor.destroy();
   }, []);
 
   return (
-    <>
-      <div className="top-panel"></div>
-      <div id="gjs"></div>
-      <div id="blocks"></div>
-    </>
+    <div className="editor-wrapper">
+      <TopBar editorRef={editorRef} />
+
+      <div className="editor-body">
+        <LeftSidebar editorRef={editorRef} />
+
+        <div className="canvas-area">
+          <div id="gjs"></div>
+        </div>
+
+        <RightSidebar editorRef={editorRef} />
+      </div>
+
+    </div>
   );
-};
+}
 
 export default App;
