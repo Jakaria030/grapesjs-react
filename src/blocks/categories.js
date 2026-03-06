@@ -3,3 +3,9 @@ export const componentsCategory = {
     label: "Components",
     open: false,
 };
+
+export const basicCategory = {
+    id: 'basic-category',
+    label: "Basics",
+    open: true,
+};
