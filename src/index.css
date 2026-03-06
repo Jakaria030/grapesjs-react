@@ -216,7 +216,7 @@ body,
     background: #0f3460;
     border: 1px solid #1a4a8a;
     border-radius: 6px;
-    cursor: pointer;
+    cursor: grab;
     transition: all 0.2s ease;
     user-select: none;
 }

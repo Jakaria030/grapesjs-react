@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const BLOCKS = [
+export const BLOCKS = [
     {
         id: 'text',
         label: 'Text',
@@ -43,12 +43,30 @@ const LeftSidebar = ({ editorRef }) => {
     const [collapsed, setCollapsed] = useState(false);
     const [activeTab, setActiveTab] = useState('blocks');
 
-    const handleAddBlock = (block) => {
+    // const handleAddBlock = (block) => {
+    //     const editor = editorRef.current;
+    //     if (!editor) return;
+
+    //     editor.getWrapper().append(block.content);
+    // }
+
+    const handleDragStart = (e, block) => {
         const editor = editorRef.current;
         if (!editor) return;
-        
-        editor.getWrapper().append(block.content);
-    }
+
+        // Tell GrapesJS which block is being dragged
+        editor.BlockManager.startDrag(
+            editor.BlockManager.get(block.id)
+        );
+    };
+
+    const handleDragEnd = () => {
+        const editor = editorRef.current;
+        if (!editor) return;
+
+        editor.BlockManager.endDrag();
+    };
+
 
     return (
         <div className={`sidebar left-sidebar ${collapsed ? 'collapsed' : ''}`}>
@@ -87,7 +105,10 @@ const LeftSidebar = ({ editorRef }) => {
                                     <div
                                         key={block.id}
                                         className="block-item"
-                                        onClick={() => handleAddBlock(block)}
+                                        // onClick={() => handleAddBlock(block)}
+                                        draggable
+                                        onDragStart={(e) => handleDragStart(e, block)}
+                                        onDragEnd={handleDragEnd}
                                     >
                                         <span className="block-icon">{block.icon}</span>
                                         <span className="block-label">{block.label}</span>

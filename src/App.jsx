@@ -3,7 +3,7 @@ import grapesjs from 'grapesjs';
 import 'grapesjs/dist/css/grapes.min.css';
 import './index.css'
 import TopBar from './components/TopBar';
-import LeftSidebar from './components/LeftSidebar';
+import LeftSidebar, { BLOCKS } from './components/LeftSidebar';
 import RightSidebar from './components/RightSidebar';
 
 function App() {
@@ -26,7 +26,7 @@ function App() {
 
       // Remove default block manager UI
       blockManager: {
-        appendTo: null,
+        // appendTo: null,
         blocks: [],
       },
 
@@ -46,6 +46,15 @@ function App() {
         appendTo: null,
       }
 
+    });
+
+    // Register each block with GrapesJS BlockManager
+    const bm = editorRef.current.BlockManager;
+    BLOCKS.forEach((block) => {
+      bm.add(block.id, {
+        label: block.label,
+        content: block.content,
+      });
     });
 
   }, []);
