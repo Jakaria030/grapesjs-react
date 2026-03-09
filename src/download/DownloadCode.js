@@ -1,8 +1,17 @@
 const DownloadCode = (editor) => {
-    const html = editor.getHtml();
-    const css = editor.getCss();
+  const html = editor.getHtml();
+  const css = editor.getCss();
+  const js = editor.getJs();
 
-    const code = `
+  // Remove any <script> tags from the HTML to avoid duplication
+  const cleanHtml = html.replace(/<script[\s\S]*?<\/script>/gi, "");
+  const htmlWithJs = js
+    ? cleanHtml.includes("</body>")
+      ? cleanHtml.replace("</body>", `<script>${js}<\/script></body>`)
+      : `<body>` + cleanHtml + `<script>${js}<\/script></body>`
+    : cleanHtml;
+
+  const code = `
     <!DOCTYPE html>
       <html>
         <head>
@@ -12,21 +21,19 @@ const DownloadCode = (editor) => {
             ${css}
           </style>
         </head>
-        <body>
-          ${html}
-        </body>
+          ${htmlWithJs}
       </html>
     `;
 
-    const blob = new Blob([code], { type: "text/html" });
-    const url = URL.createObjectURL(blob);
+  const blob = new Blob([code], { type: "text/html" });
+  const url = URL.createObjectURL(blob);
 
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "index.html";
-    a.click();
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "index.html";
+  a.click();
 
-    URL.revokeObjectURL(url);
+  URL.revokeObjectURL(url);
 };
 
 export default DownloadCode;

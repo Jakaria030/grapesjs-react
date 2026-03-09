@@ -5,6 +5,7 @@ import ComponentsPlugin from './plugins/ComponentsPlugin';
 import TopPanel from './panels/TopPanel';
 import DownloadCodeCommand from './commands/DownloadCodeCommand';
 import ResetLocalStorageCommand from './commands/ResetLocalStorageCommand';
+import ExportTemplateCommand from './commands/ExportTemplateCommand';
 
 
 const App = () => {
@@ -26,6 +27,7 @@ const App = () => {
 
     TopPanel(editor);
     DownloadCodeCommand(editor);
+    ExportTemplateCommand(editor);
     ResetLocalStorageCommand(editor);
 
     return () => editor.destroy();

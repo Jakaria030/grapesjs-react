@@ -15,7 +15,8 @@
     background-color: #5fb899 !important;
 }
 
-#blocks, .layers-container {
+#blocks,
+.layers-container {
     position: absolute;
     top: 60px;
     width: 15%;
@@ -28,6 +29,6 @@
     min-height: auto;
 }
 
-.gjs-blocks-c{
+.gjs-blocks-c {
     width: 100%;
 }

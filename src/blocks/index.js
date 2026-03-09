@@ -1,3 +1,4 @@
+import CountDown from "./CountDownBlock";
 import FooterBlock from "./FooterBlock";
 import HeaderBlock from "./HeaderBlock";
 import MainBlock from "./MainBlock";
@@ -12,6 +13,7 @@ const LoadBlocks = (editor) => {
     // components block
     HeaderBlock(editor);
     MainBlock(editor);
+    CountDown(editor);
     FooterBlock(editor);
 }
 
