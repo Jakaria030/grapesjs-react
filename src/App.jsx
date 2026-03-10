@@ -80,7 +80,7 @@ function App() {
           <div id="gjs"></div>
         </div>
 
-        <RightSidebar editorRef={editorRef} />
+        <RightSidebar />
       </div>
 
     </div>
