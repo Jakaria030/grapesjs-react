@@ -7,6 +7,7 @@ import LeftSidebar, { BLOCKS } from './components/LeftSidebar';
 import RightSidebar from './components/RightSidebar';
 import Listener from './listener/Listener';
 import Heading from './domComponents/Heading';
+import CanvasStyle from './canvasStyle';
 
 function App() {
   const editorRef = useRef(null);
@@ -62,7 +63,7 @@ function App() {
         upload: false,
         showUrlInput: true,
       },
-
+      allowScripts: 1,
     });
 
     // Register each block with GrapesJS BlockManager
@@ -79,6 +80,9 @@ function App() {
 
     // Dom components
     Heading(editorRef.current);
+
+
+    CanvasStyle(editorRef.current)
   }, []);
 
 

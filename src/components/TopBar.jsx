@@ -111,7 +111,19 @@ const TopBar = ({ editorRef, device, setDevice, }) => {
 
         // open modal
         // show in three seperate part
-        const { html, css, js } = getHtmlCssJs(editor);
+        const { html: html_body, css, js } = getHtmlCssJs(editor);
+        const html = `<!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <title>Preview</title>
+        </head>
+        <body>
+            ${html_body}
+        </body>
+        </html>`.trim();
+
         setContent({ html, css, js });
         showModal();
     };
@@ -129,6 +141,14 @@ const TopBar = ({ editorRef, device, setDevice, }) => {
 
         editor.DeviceManager.select(deviceMap[device])
     }, [device])
+
+    const handleReset = () => {
+        const editor = editorRef.current;
+        if (!editor) return;
+
+        editor.DomComponents.clear();
+        editor.UndoManager.clear();
+    }
 
     return (
         <>
@@ -169,6 +189,9 @@ const TopBar = ({ editorRef, device, setDevice, }) => {
                 </button>
                 <button className="topbar-btn" onClick={handleRedo}>
                     ↪ Redo
+                </button>
+                <button className="topbar-btn" onClick={handleReset}>
+                    ↺ Reset
                 </button>
 
                 <div className="topbar-divider" />
