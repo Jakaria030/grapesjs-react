@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import grapesjs from 'grapesjs';
 import 'grapesjs/dist/css/grapes.min.css';
 import './index.css'
@@ -8,6 +8,7 @@ import RightSidebar from './components/RightSidebar';
 
 function App() {
   const editorRef = useRef(null);
+  const [device, setDevice] = useState('desktop')
 
   useEffect(() => {
     // Only init once
@@ -61,7 +62,7 @@ function App() {
 
   return (
     <div className="editor-wrapper">
-      <TopBar editorRef={editorRef} />
+      <TopBar editorRef={editorRef} device={device} setDevice={setDevice} />
 
       <div className="editor-body">
         <LeftSidebar editorRef={editorRef} />

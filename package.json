@@ -10,7 +10,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@codemirror/lang-css": "^6.3.1",
+    "@codemirror/lang-html": "^6.4.11",
+    "@codemirror/lang-javascript": "^6.2.5",
+    "@uiw/react-codemirror": "^4.25.8",
+    "codemirror": "^6.0.2",
     "grapesjs": "^0.22.14",
+    "prettier": "^3.8.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
