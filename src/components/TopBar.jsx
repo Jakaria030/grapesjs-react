@@ -1,4 +1,17 @@
-const TopBar = ({ editorRef }) => {
+import { useEffect, useState } from "react";
+import { getHtmlCssJs } from "../utils/utils";
+import Modal from "./Modal";
+
+const DEVICES = [
+    { id: 'desktop', icon: '/assets/desktop-mac.png', label: 'Desktop' },
+    { id: 'laptop', icon: '/assets/laptop.png', label: 'Laptop' },
+    { id: 'tablet', icon: '/assets/tablet.png', label: 'Tablet' },
+    { id: 'mobile', icon: '/assets/mobile-solid.png', label: 'Mobile' },
+]
+
+const TopBar = ({ editorRef, device, setDevice, }) => {
+    const [open, setOpen] = useState(false);
+    const [content, setContent] = useState({});
 
     const handleUndo = () => {
         const editor = editorRef.current;
@@ -18,8 +31,7 @@ const TopBar = ({ editorRef }) => {
         const editor = editorRef.current;
         if (!editor) return;
 
-        const html = editor.getHtml();
-        const css = editor.getCss();
+        const { html, css, js } = getHtmlCssJs(editor);
 
         const fullHtml = `
         <!DOCTYPE html>
@@ -34,6 +46,10 @@ const TopBar = ({ editorRef }) => {
         </head>
         <body>
             ${html}
+
+            <script>
+                ${js}
+            </script>
         </body>
         </html>
             `.trim();
@@ -52,8 +68,7 @@ const TopBar = ({ editorRef }) => {
         const editor = editorRef.current;
         if (!editor) return;
 
-        const html = editor.getHtml();
-        const css = editor.getCss();
+        const { html, css, js } = getHtmlCssJs(editor);
 
         const fullHtml = `
         <!DOCTYPE html>
@@ -68,6 +83,10 @@ const TopBar = ({ editorRef }) => {
         </head>
         <body>
             ${html}
+
+            <script>
+                ${js}
+            </script>
         </body>
         </html>`.trim();
 
@@ -75,39 +94,104 @@ const TopBar = ({ editorRef }) => {
         const newTab = window.open('', '_blank');
         newTab.document.write(fullHtml);
         newTab.document.close();
-    }
+    };
+
+    const showModal = () => {
+        setOpen(true);
+    };
+
+    const closeModal = () => {
+        setOpen(false);
+        setContent({});
+    };
+
+    const handleCodePreview = () => {
+        const editor = editorRef.current;
+        if (!editor) return;
+
+        // open modal
+        // show in three seperate part
+        const { html, css, js } = getHtmlCssJs(editor);
+        setContent({ html, css, js });
+        showModal();
+    };
+
+    useEffect(() => {
+        const editor = editorRef.current
+        if (!editor) return;
+
+        const deviceMap = {
+            desktop: 'Desktop',
+            laptop: 'Laptop',
+            tablet: 'Tablet',
+            mobile: 'Mobile',
+        };
+
+        editor.DeviceManager.select(deviceMap[device])
+    }, [device])
 
     return (
-        <div className="topbar">
-            {/* Logo */}
-            <span className="topbar-logo">My Editor</span>
+        <>
+            <div className="topbar">
+                {/* Logo */}
+                <span className="topbar-logo">My Editor</span>
 
-            <div className="topbar-divider" />
+                <div className="topbar-divider" />
 
-            {/* Spacer pushes preview+export to the right */}
-            <div className="topbar-spacer" />
+                {/* Spacer pushes preview+export to the right */}
+                <div className="topbar-spacer" />
 
-            <button className="topbar-btn preview-btn" onClick={handlePreview}>
-                👁 Preview
-            </button>
+                {/* devices switcher*/}
+                <div className="topbar-device-group">
+                    {DEVICES.map((d) => {
+                        return (
+                            <button
+                                key={d.id}
+                                className={`device-btn ${device === d.id ? 'active' : ''}`}
+                                title={d.label}
+                                onClick={() => setDevice(d.id)}
+                            >
+                                <img src={`${d.icon}`} alt={`${d.label}`} draggable="false" />
+                            </button>
+                        )
+                    })}
+                </div>
 
-            {/* Undo / Redo */}
-            <button className="topbar-btn" onClick={handleUndo}>
-                ↩ Undo
-            </button>
-            <button className="topbar-btn" onClick={handleRedo}>
-                ↪ Redo
-            </button>
+                <div className="topbar-spacer" />
 
-            <div className="topbar-divider" />
+                <button className="topbar-btn preview-btn" onClick={handlePreview}>
+                    👁 Preview
+                </button>
 
-            {/* Export */}
-            <button className="topbar-btn export-btn" onClick={handleExport}>
-                ⬇ Export HTML
-            </button>
+                {/* Undo / Redo */}
+                <button className="topbar-btn" onClick={handleUndo}>
+                    ↩ Undo
+                </button>
+                <button className="topbar-btn" onClick={handleRedo}>
+                    ↪ Redo
+                </button>
 
+                <div className="topbar-divider" />
 
-        </div>
+                {/* Export */}
+                <button className="topbar-btn code-preview-btn" onClick={handleCodePreview}>
+                    Code Preview
+                </button>
+                <button className="topbar-btn export-btn" onClick={handleExport}>
+                    ⬇ Export Code
+                </button>
+
+            </div>
+
+            <Modal
+                isOpen={open}
+                onClose={closeModal}
+                htmlCode={content.html}
+                cssCode={content.css}
+                jsCode={content.js}
+            />
+
+        </>
     )
 };
 

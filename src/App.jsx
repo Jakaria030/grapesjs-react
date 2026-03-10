@@ -1,13 +1,14 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import grapesjs from 'grapesjs';
 import 'grapesjs/dist/css/grapes.min.css';
 import './index.css'
 import TopBar from './components/TopBar';
-import LeftSidebar from './components/LeftSidebar';
+import LeftSidebar, { BLOCKS } from './components/LeftSidebar';
 import RightSidebar from './components/RightSidebar';
 
 function App() {
   const editorRef = useRef(null);
+  const [device, setDevice] = useState('desktop')
 
   useEffect(() => {
     // Only init once
@@ -26,7 +27,7 @@ function App() {
 
       // Remove default block manager UI
       blockManager: {
-        appendTo: null,
+        // appendTo: null,
         blocks: [],
       },
 
@@ -44,15 +45,33 @@ function App() {
       // Remove default trait manager UI
       traitManager: {
         appendTo: null,
+      },
+
+      deviceManager: {
+        devices: [
+          { name: 'Desktop', width: '' },
+          { name: 'Laptop', width: '1024px' },
+          { name: 'Tablet', width: '768px' },
+          { name: 'Mobile', width: '375px' },
+        ]
       }
 
+    });
+
+    // Register each block with GrapesJS BlockManager
+    const bm = editorRef.current.BlockManager;
+    BLOCKS.forEach((block) => {
+      bm.add(block.id, {
+        label: block.label,
+        content: block.content,
+      });
     });
 
   }, []);
 
   return (
     <div className="editor-wrapper">
-      <TopBar editorRef={editorRef} />
+      <TopBar editorRef={editorRef} device={device} setDevice={setDevice} />
 
       <div className="editor-body">
         <LeftSidebar editorRef={editorRef} />
