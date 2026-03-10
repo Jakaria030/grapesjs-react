@@ -391,6 +391,10 @@ body,
     background: #111827;
 }
 
+.gjs-rte-toolbar-ui {
+    display: none;
+}
+
 
 /* ─── HIDE GRAPESJS DEFAULT UI ────────────────── */
 
@@ -485,6 +489,39 @@ body,
 }
 
 .copy-btn:hover {
-    border-color: #5b6cff;
+    border-color: #0f3460;
     color: #5b6cff;
+}
+
+
+/* HeadingToolbar.css */
+.heading-toolbar {
+    display: flex;
+    gap: 4px;
+    padding: 4px;
+    background: #0f3460;
+    border: 1px solid #0f3460;
+    border-radius: 4px;
+}
+
+.heading-tag-btn {
+    padding: 4px 8px;
+    border: none;
+    border-radius: 5px;
+    background: transparent;
+    color: #5c6370;
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.heading-tag-btn:hover {
+    background: #2a2d3a;
+    color: #abb2bf;
+}
+
+.heading-tag-btn.active {
+    background: #5b6cff;
+    color: #fff;
 }

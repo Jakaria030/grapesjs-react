@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import HeadingToolbar from "./HeadingTolbar";
 
 // blocks.js
 export const BLOCKS = [
@@ -42,7 +43,11 @@ export const BLOCKS = [
         id: 'heading',
         label: 'Heading',
         media: `<img src='/assets/bx-heading.png' draggable='false'/>`,
-        content: '<h2 style="padding:8px;font-size:28px;font-weight:700">Heading</h2>',
+        content: {
+            type: 'heading',
+            content: 'Heading',
+            style: { padding: '8px', fontSize: '28px', fontWeight: '700' },
+        },
     },
     {
         id: 'one-column',
@@ -92,7 +97,9 @@ const LeftSidebar = ({ editorRef }) => {
     const [activeTab, setActiveTab] = useState('blocks');
     const [selectedEl, setSelectedEl] = useState(null);
     const [styles, setStyles] = useState({});
-
+    const [selectedHeading, setSelectedHeading] = useState(null);
+    const [headingTag, setHeadingTag] = useState('h2');
+    const [headingToolbarOpen, setHeadingToolbarOpen] = useState(false);
 
     // const handleAddBlock = (block) => {
     //     const editor = editorRef.current;
@@ -149,6 +156,32 @@ const LeftSidebar = ({ editorRef }) => {
         return () => clearInterval(interval);
 
     }, []);
+
+    useEffect(() => {
+        const editor = editorRef.current;
+        if (!editor) return;
+
+        editor.on('component:selected', (component) => {
+            const el = component.getEl();
+            const tag = el?.tagName;
+
+            if (['H1', 'H2', 'H3', 'H4', 'H5', 'H6'].includes(tag)) {
+                setSelectedHeading(component);
+                setHeadingTag(tag.toLowerCase());
+                setHeadingToolbarOpen(true);
+            } else {
+                setHeadingToolbarOpen(false);
+            }
+        });
+    }, []);
+
+    const handleHeadingChange = (newTag) => {
+        if (!selectedHeading) return;
+
+        selectedHeading.set('tagName', newTag);
+
+        setHeadingTag(newTag);
+    };
 
     // When user changes a style input
     const handleStyleChange = (property, value) => {
@@ -243,6 +276,12 @@ const LeftSidebar = ({ editorRef }) => {
                                                 />
                                             </div>
                                         ))}
+
+                                        {<HeadingToolbar
+                                            isOpen={headingToolbarOpen}
+                                            currentTag={headingTag}
+                                            onChange={handleHeadingChange}
+                                        />}
 
                                     </div>
                                 )}

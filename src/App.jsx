@@ -6,10 +6,11 @@ import TopBar from './components/TopBar';
 import LeftSidebar, { BLOCKS } from './components/LeftSidebar';
 import RightSidebar from './components/RightSidebar';
 import Listener from './listener/Listener';
+import Heading from './domComponents/Heading';
 
 function App() {
   const editorRef = useRef(null);
-  const [device, setDevice] = useState('desktop')
+  const [device, setDevice] = useState('desktop');
 
   useEffect(() => {
     // Only init once
@@ -76,7 +77,10 @@ function App() {
     // Listner
     Listener(editorRef.current);
 
+    // Dom components
+    Heading(editorRef.current);
   }, []);
+
 
   return (
     <div className="editor-wrapper">
@@ -91,7 +95,6 @@ function App() {
 
         <RightSidebar />
       </div>
-
     </div>
   );
 }
