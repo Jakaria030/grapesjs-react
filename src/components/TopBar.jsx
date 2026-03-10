@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getHtmlCssJs } from "../utils/utils";
 import Modal from "./Modal";
 
@@ -116,6 +116,20 @@ const TopBar = ({ editorRef, device, setDevice, }) => {
         showModal();
     };
 
+    useEffect(() => {
+        const editor = editorRef.current
+        if (!editor) return;
+
+        const deviceMap = {
+            desktop: 'Desktop',
+            laptop: 'Laptop',
+            tablet: 'Tablet',
+            mobile: 'Mobile',
+        };
+
+        editor.DeviceManager.select(deviceMap[device])
+    }, [device])
+
     return (
         <>
             <div className="topbar">
@@ -127,7 +141,7 @@ const TopBar = ({ editorRef, device, setDevice, }) => {
                 {/* Spacer pushes preview+export to the right */}
                 <div className="topbar-spacer" />
 
-                {/* devices */}
+                {/* devices switcher*/}
                 <div className="topbar-device-group">
                     {DEVICES.map((d) => {
                         return (
@@ -137,7 +151,7 @@ const TopBar = ({ editorRef, device, setDevice, }) => {
                                 title={d.label}
                                 onClick={() => setDevice(d.id)}
                             >
-                                <img src={`${d.icon}`} alt={`${d.label}`} />
+                                <img src={`${d.icon}`} alt={`${d.label}`} draggable="false" />
                             </button>
                         )
                     })}

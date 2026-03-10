@@ -176,18 +176,18 @@ body,
 .device-btn {
     padding: 4px 8px;
     border: none;
-    background: #aaaaaa;
+    background: #fff;
     cursor: pointer;
     border-radius: 5px;
     margin: 0 2px;
 }
 
 .device-btn:hover {
-    background: #fff;
+    background: #e94560;
 }
 
 .device-btn.active {
-    background: #fff;
+    background: #e94560;
 }
 
 .tab-btn {
@@ -363,6 +363,7 @@ body,
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 8px;
 }
 
 #gjs {
@@ -387,6 +388,7 @@ body,
     top: 0 !important;
     width: 100% !important;
     height: 100% !important;
+    background: #111827;
 }
 
 

@@ -45,6 +45,15 @@ function App() {
       // Remove default trait manager UI
       traitManager: {
         appendTo: null,
+      },
+
+      deviceManager: {
+        devices: [
+          { name: 'Desktop', width: '' },
+          { name: 'Laptop', width: '1024px' },
+          { name: 'Tablet', width: '768px' },
+          { name: 'Mobile', width: '375px' },
+        ]
       }
 
     });
