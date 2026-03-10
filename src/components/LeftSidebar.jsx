@@ -24,7 +24,7 @@ export const BLOCKS = [
         id: 'video',
         label: 'Video',
         media: `<img src='/assets/handle-right.png' draggable='false'/>`,
-        content: '<video controls style="max-width:100%"><source src="" /></video>',
+        content: '<video controls style="max-width:100%;display:block"><source src="" type="video/mp4"/></video>',
     },
     {
         id: 'map',
@@ -92,7 +92,7 @@ const LeftSidebar = ({ editorRef }) => {
     const [activeTab, setActiveTab] = useState('blocks');
     const [selectedEl, setSelectedEl] = useState(null);
     const [styles, setStyles] = useState({});
-    
+
 
     // const handleAddBlock = (block) => {
     //     const editor = editorRef.current;

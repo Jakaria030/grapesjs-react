@@ -5,6 +5,7 @@ import './index.css'
 import TopBar from './components/TopBar';
 import LeftSidebar, { BLOCKS } from './components/LeftSidebar';
 import RightSidebar from './components/RightSidebar';
+import Listener from './listener/Listener';
 
 function App() {
   const editorRef = useRef(null);
@@ -54,7 +55,12 @@ function App() {
           { name: 'Tablet', width: '768px' },
           { name: 'Mobile', width: '375px' },
         ]
-      }
+      },
+      assetManager: {
+        assets: [],
+        upload: false,
+        showUrlInput: true,
+      },
 
     });
 
@@ -66,6 +72,9 @@ function App() {
         content: block.content,
       });
     });
+
+    // Listner
+    Listener(editorRef.current);
 
   }, []);
 
