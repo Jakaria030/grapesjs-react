@@ -2,8 +2,6 @@ const Listener = (editor) => {
     editor.on('component:selected', (component) => {
         const el = component.getEl();
 
-        console.log('selected tag:', el?.tagName); // debug — check what's being selected
-
         const isVideo =
             el?.tagName === 'VIDEO' ||
             el?.tagName === 'SOURCE' ||

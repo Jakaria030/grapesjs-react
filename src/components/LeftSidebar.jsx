@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import HeadingToolbar from "./HeadingTolbar";
+import StylePanel, { DIMENSION_PROPS, FLEX_INPUT_PROPS, FLEX_SELECT_PROPS, SPACING_PROPS, TYPOGRAPHY_PROPS } from "./StylePanel";
 
 // blocks.js
 export const BLOCKS = [
@@ -291,16 +292,16 @@ export const BLOCKS = [
     },
 ];
 
-const STYLE_PROPERTIES = [
-    { label: 'Font Size', property: 'font-size', placeholder: '16px' },
-    { label: 'Color', property: 'color', placeholder: '#000000' },
-    { label: 'Background', property: 'background-color', placeholder: '#ffffff' },
-    { label: 'Padding', property: 'padding', placeholder: '8px' },
-    { label: 'Margin', property: 'margin', placeholder: '0px' },
-    { label: 'Border', property: 'border', placeholder: '1px solid #ccc' },
-    { label: 'Width', property: 'width', placeholder: 'auto' },
-    { label: 'Height', property: 'height', placeholder: 'auto' },
-];
+// const STYLE_PROPERTIES = [
+//     { label: 'Font Size', property: 'font-size', placeholder: '16px' },
+//     { label: 'Color', property: 'color', placeholder: '#000000' },
+//     { label: 'Background', property: 'background-color', placeholder: '#ffffff' },
+//     { label: 'Padding', property: 'padding', placeholder: '8px' },
+//     { label: 'Margin', property: 'margin', placeholder: '0px' },
+//     { label: 'Border', property: 'border', placeholder: '1px solid #ccc' },
+//     { label: 'Width', property: 'width', placeholder: 'auto' },
+//     { label: 'Height', property: 'height', placeholder: 'auto' },
+// ];
 
 const LeftSidebar = ({ editorRef }) => {
     const [collapsed, setCollapsed] = useState(false);
@@ -346,12 +347,15 @@ const LeftSidebar = ({ editorRef }) => {
             editor.on('component:selected', (component) => {
                 setSelectedEl(component);
 
-                // Read current styles of selected element
+                // // Read current styles of selected element
                 const currentStyles = {};
-                STYLE_PROPERTIES.forEach(({ property }) => {
-                    currentStyles[property] = component.getStyle()[property] || '';
-                });
 
+                [DIMENSION_PROPS, SPACING_PROPS, TYPOGRAPHY_PROPS, FLEX_SELECT_PROPS, FLEX_INPUT_PROPS].forEach((allProps) => {
+                    allProps.forEach(({ property }) => {
+                        currentStyles[property] = component.getStyle()[property] || '';
+                    });
+                })
+                console.log(currentStyles);
                 setStyles(currentStyles);
             });
 
@@ -394,6 +398,7 @@ const LeftSidebar = ({ editorRef }) => {
     };
 
     // When user changes a style input
+
     const handleStyleChange = (property, value) => {
         // Update local state
         setStyles((prev) => ({ ...prev, [property]: value }));
@@ -471,7 +476,7 @@ const LeftSidebar = ({ editorRef }) => {
                                 {selectedEl && (
                                     <div className="style-properties">
 
-                                        <div className="selected-tag">
+                                        {/* <div className="selected-tag">
                                             &lt;{selectedEl.get('tagName') || 'element'}&gt;
                                         </div>
 
@@ -485,13 +490,19 @@ const LeftSidebar = ({ editorRef }) => {
                                                     onChange={(e) => handleStyleChange(property, e.target.value)}
                                                 />
                                             </div>
-                                        ))}
+                                        ))} */}
 
                                         {<HeadingToolbar
                                             isOpen={headingToolbarOpen}
                                             currentTag={headingTag}
                                             onChange={handleHeadingChange}
                                         />}
+
+                                        <StylePanel
+                                            selectedEl={selectedEl}
+                                            styles={styles}
+                                            onChange={handleStyleChange}
+                                        />
 
                                     </div>
                                 )}

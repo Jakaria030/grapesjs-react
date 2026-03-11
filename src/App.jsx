@@ -7,7 +7,6 @@ import LeftSidebar, { BLOCKS } from './components/LeftSidebar';
 import RightSidebar from './components/RightSidebar';
 import Listener from './listener/Listener';
 import Heading from './domComponents/Heading';
-import CanvasStyle from './canvasStyle';
 
 function App() {
   const editorRef = useRef(null);
@@ -58,12 +57,20 @@ function App() {
           { name: 'Mobile', width: '375px' },
         ]
       },
+
       assetManager: {
         assets: [],
         upload: false,
         showUrlInput: true,
       },
+
       allowScripts: 1,
+
+      canvas: {
+        styles: [
+          '/static/canvasStyle.css',
+        ],
+      },
     });
 
     // Register each block with GrapesJS BlockManager
@@ -81,8 +88,6 @@ function App() {
     // Dom components
     Heading(editorRef.current);
 
-
-    CanvasStyle(editorRef.current)
   }, []);
 
 
@@ -97,7 +102,7 @@ function App() {
           <div id="gjs"></div>
         </div>
 
-        <RightSidebar editorRef={editorRef}/>
+        <RightSidebar editorRef={editorRef} />
       </div>
     </div>
   );

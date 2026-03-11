@@ -150,8 +150,7 @@ body,
 
 .sidebar-content {
     flex: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow: hidden;
     padding: 12px;
     scrollbar-width: thin;
     scrollbar-color: #0f3460 transparent;
@@ -533,7 +532,7 @@ body,
     overflow-y: auto;
     scrollbar-width: thin;
     scrollbar-color: #0f3460 transparent;
-    max-height: calc(100vh - 100px);
+    max-height: calc(100vh - 150px);
     padding: 6px 4px;
 }
 
@@ -674,4 +673,217 @@ body,
 
 .lyr-btn-off {
     opacity: 0.25;
+}
+
+
+/* stylePanel.css */
+
+.sp-panel {
+    display: flex;
+    flex-direction: column;
+    font-family: 'DM Sans', sans-serif;
+    overflow-y: auto;
+    max-height: calc(100vh - 200px);
+    scrollbar-width: thin;
+    scrollbar-color: #0f3460 transparent;
+}
+
+.sp-placeholder {
+    font-size: 12px;
+    color: #0f3460;
+    opacity: 0.35;
+    text-align: center;
+    padding: 32px 8px;
+    font-style: italic;
+}
+
+.sp-selected-tag {
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    background: #0f3460;
+    border-radius: 6px;
+    padding: 5px 12px;
+    margin: 8px 8px 4px;
+    display: inline-block;
+    letter-spacing: 0.04em;
+}
+
+/* ── Section ── */
+.sp-section {
+    border-bottom: 1px solid rgba(15, 52, 96, 0.08);
+}
+
+.sp-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.12s;
+}
+
+.sp-section-header:hover {
+    background: rgba(15, 52, 96, 0.04);
+}
+
+.sp-section-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #0f3460;
+    letter-spacing: 0.03em;
+}
+
+.sp-section-arrow {
+    font-size: 11px;
+    color: #0f3460;
+    opacity: 0.4;
+}
+
+.sp-section-body {
+    padding: 4px 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* ── Row ── */
+.sp-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-height: 28px;
+}
+
+.sp-label {
+    font-size: 11px;
+    color: #0f3460;
+    opacity: 0.65;
+    font-weight: 500;
+    flex-shrink: 0;
+    width: 90px;
+}
+
+/* ── Input ── */
+.sp-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+    background: rgba(15, 52, 96, 0.05);
+    border: 1px solid rgba(15, 52, 96, 0.12);
+    border-radius: 6px;
+    padding: 0 6px;
+    height: 28px;
+}
+
+.sp-input {
+    background: none;
+    border: none;
+    outline: none;
+    font-size: 12px;
+    color: #0f3460;
+    width: 100%;
+    font-family: 'DM Sans', sans-serif;
+}
+
+.sp-input::placeholder {
+    opacity: 0.35;
+}
+
+/* remove number arrows */
+.sp-input::-webkit-outer-spin-button,
+.sp-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+}
+
+.sp-unit {
+    font-size: 10px;
+    color: #0f3460;
+    opacity: 0.35;
+    flex-shrink: 0;
+    font-weight: 600;
+}
+
+/* ── Select ── */
+.sp-select {
+    flex: 1;
+    background: rgba(15, 52, 96, 0.05);
+    border: 1px solid rgba(15, 52, 96, 0.12);
+    border-radius: 6px;
+    padding: 0 6px;
+    height: 28px;
+    font-size: 12px;
+    color: #0f3460;
+    outline: none;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+}
+
+/* ── Color ── */
+.sp-color-preview {
+    width: 20px;
+    height: 20px;
+    border: none;
+    border-radius: 4px;
+    padding: 0;
+    cursor: pointer;
+    flex-shrink: 0;
+    background: none;
+}
+
+/* ── Toggle ── */
+.sp-toggle {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.sp-toggle input {
+    display: none;
+}
+
+.sp-toggle-slider {
+    width: 36px;
+    height: 20px;
+    background: rgba(15, 52, 96, 0.15);
+    border-radius: 999px;
+    transition: background 0.2s;
+    position: relative;
+}
+
+.sp-toggle-slider::after {
+    content: '';
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    background: #fff;
+    border-radius: 50%;
+    top: 3px;
+    left: 3px;
+    transition: transform 0.2s;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+.sp-toggle input:checked+.sp-toggle-slider {
+    background: #0f3460;
+}
+
+.sp-toggle input:checked+.sp-toggle-slider::after {
+    transform: translateX(16px);
+}
+
+/* ── Grid 2 col ── */
+.sp-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+}
+
+.sp-grid-2 .sp-label {
+    width: 70px;
+    font-size: 10px;
 }

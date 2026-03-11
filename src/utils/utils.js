@@ -1,29 +1,33 @@
+// getEditorCode.js
+import { BLOCK_STYLES } from '../blockStyles';
+
 export const getHtmlCssJs = (editor) => {
     const rawHtml = editor.getHtml();
-    const rawCss = editor.getCss();
 
-    // ── extract JS from <script> tags & remove them from html ──
+    // ── extract JS ──
     const scripts = [];
     const htmlNoScripts = rawHtml.replace(
         /<script\b[^>]*>([\s\S]*?)<\/script>/gi,
-        (match, code) => {
-            scripts.push(code.trim());
-            return '';
-        }
+        (match, code) => { scripts.push(code.trim()); return ''; }
     );
 
-    // ── remove <body> tags ──
-    const html = htmlNoScripts
-        .replace(/<\/?body[^>]*>/gi, '')
-        .trim();
+    const html = htmlNoScripts.replace(/<\/?body[^>]*>/gi, '').trim();
+    const js = scripts.join('\n\n').trim();
 
-    // ── remove <style> wrapper from css ──
-    const css = rawCss
+    // ✅ scan html for used block root classes
+    const usedCSS = Object.entries(BLOCK_STYLES)
+        .filter(([cls]) => html.includes(`class="${cls}`) || html.includes(`class="${cls} `) || html.includes(` ${cls}`))
+        .map(([, css]) => css)
+        .join('\n\n');
+
+    const fonts = `@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');`;
+
+    // user applied styles from grapesjs
+    const userCss = editor.getCss()
         .replace(/<\/?style[^>]*>/gi, '')
         .trim();
 
-    // ── join all scripts ──
-    const js = scripts.join('\n\n').trim();
+    const css = `${fonts}\n\n${userCss}\n\n${usedCSS}`.trim();
 
     return { html, css, js };
 };

@@ -126,7 +126,7 @@ const LayerPanel = ({ editorRef }) => {
 
         const root = editorRef.current.DomComponents.getWrapper();
         const flat = flattenLayers(root.get('components'), 0, [], openMap);
-        console.log(flat)
+
         setLayers(flat);
     };
 
