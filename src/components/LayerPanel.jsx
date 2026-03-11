@@ -44,6 +44,8 @@ const flattenLayers = (components, depth = 0, result = [], openMap = {}) => {
     if (!components?.models) return result;
 
     components.models.forEach((comp) => {
+        if(comp.get('tagName') === 'script') return;
+        
         const id    = comp.cid;
         const tag   = comp.get('tagName') || comp.get('type') || 'div';
         const label = comp.get('name') || tag;
@@ -124,6 +126,7 @@ const LayerPanel = ({ editorRef }) => {
 
         const root = editorRef.current.DomComponents.getWrapper();
         const flat = flattenLayers(root.get('components'), 0, [], openMap);
+        console.log(flat)
         setLayers(flat);
     };
 

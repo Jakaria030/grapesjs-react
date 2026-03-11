@@ -231,7 +231,7 @@ export const BLOCKS = [
         label: 'Countdown',
         media: `<img src='/assets/stopwatch.png' draggable='false'/>`,
         content: `
-<div class="cntd">
+<section class="cntd">
     <p class="cntd-label">Launch in</p>
     <div class="cntd-wrap">
         <div class="cntd-box">
@@ -254,7 +254,7 @@ export const BLOCKS = [
             <span class="cntd-unit">Seconds</span>
         </div>
     </div>
-</div>
+</section>
 
 <script>
     (function() {
