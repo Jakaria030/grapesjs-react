@@ -1,11 +1,11 @@
 import { useState } from "react";
+import LayerPanel from "./LayerPanel";
 
-const RightSidebar = () => {
+const RightSidebar = ({ editorRef }) => {
     const [collapsed, setCollapsed] = useState(false);
+
     return (
         <div className={`sidebar right-sidebar ${collapsed ? 'collapsed' : ''}`}>
-
-            {/* Toggle button */}
             <button
                 className="sidebar-toggle"
                 onClick={() => setCollapsed(!collapsed)}
@@ -13,16 +13,14 @@ const RightSidebar = () => {
                 {collapsed ? '→' : '←'}
             </button>
 
-            {/* Sidebar content — hidden when collapsed */}
             {!collapsed && (
                 <div className="sidebar-content">
                     <div className="sidebar-title">Layers</div>
-
-                    <p className="tab-placeholder">Layer Comming Soon</p>
+                    <LayerPanel editorRef={editorRef} />
                 </div>
             )}
         </div>
-    )
+    );
 };
 
 export default RightSidebar;

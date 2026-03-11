@@ -395,7 +395,6 @@ body,
     display: none;
 }
 
-
 /* ─── HIDE GRAPESJS DEFAULT UI ────────────────── */
 
 .modal-overlay {
@@ -526,3 +525,153 @@ body,
     color: #fff;
 }
 
+/* layerPanel.css */
+
+.lyr-panel {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #0f3460 transparent;
+    max-height: calc(100vh - 100px);
+    padding: 6px 4px;
+}
+
+.lyr-empty {
+    font-size: 12px;
+    color: #0f3460;
+    opacity: 0.35;
+    text-align: center;
+    padding: 32px 8px;
+    font-style: italic;
+}
+
+/* ── Row ── */
+.lyr-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    height: 32px;
+    cursor: pointer;
+    border-radius: 7px;
+    padding-right: 6px;
+    margin: 1px 2px;
+    border: 1px solid transparent;
+    transition: background 0.12s, border-color 0.12s;
+    user-select: none;
+    position: relative;
+}
+
+.lyr-row:hover {
+    background: rgba(15, 52, 96, 0.06);
+    border-color: rgba(15, 52, 96, 0.1);
+}
+
+.lyr-selected {
+    background: rgba(15, 52, 96, 0.1) !important;
+    border-color: rgba(15, 52, 96, 0.25) !important;
+}
+
+.lyr-hidden {
+    opacity: 0.4;
+}
+
+/* ── Arrow ── */
+.lyr-arrow {
+    width: 14px;
+    font-size: 10px;
+    color: #0f3460;
+    opacity: 0.45;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.15s;
+}
+
+.lyr-arrow:hover {
+    opacity: 1;
+}
+
+/* ── Dot ── */
+.lyr-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    opacity: 0.85;
+}
+
+/* ── Icon ── */
+.lyr-icon {
+    font-size: 11px;
+    font-weight: 700;
+    width: 14px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+/* ── Label ── */
+.lyr-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #0f3460;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.lyr-selected .lyr-label {
+    font-weight: 700;
+}
+
+/* ── Tag badge ── */
+.lyr-tag {
+    font-size: 10px;
+    font-weight: 600;
+    color: #0f3460;
+    opacity: 0.3;
+    background: rgba(15, 52, 96, 0.06);
+    border-radius: 4px;
+    padding: 1px 5px;
+    letter-spacing: 0.03em;
+    text-transform: lowercase;
+    flex-shrink: 0;
+}
+
+/* ── Actions ── */
+.lyr-actions {
+    display: flex;
+    gap: 2px;
+    opacity: 0;
+    transition: opacity 0.15s;
+    flex-shrink: 0;
+}
+
+.lyr-row:hover .lyr-actions,
+.lyr-selected .lyr-actions {
+    opacity: 1;
+}
+
+.lyr-btn {
+    background: none;
+    border: 1px solid transparent;
+    cursor: pointer;
+    font-size: 11px;
+    padding: 2px 4px;
+    border-radius: 4px;
+    transition: all 0.15s;
+    line-height: 1;
+    opacity: 0.6;
+}
+
+.lyr-btn:hover {
+    background: rgba(15, 52, 96, 0.08);
+    border-color: rgba(15, 52, 96, 0.15);
+    opacity: 1;
+}
+
+.lyr-btn-off {
+    opacity: 0.25;
+}

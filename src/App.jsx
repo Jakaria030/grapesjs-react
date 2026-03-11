@@ -42,7 +42,7 @@ function App() {
 
       // Remove default layer manager UI
       layerManager: {
-        appendTo: null,
+        custom: true,
       },
 
       // Remove default trait manager UI
@@ -97,7 +97,7 @@ function App() {
           <div id="gjs"></div>
         </div>
 
-        <RightSidebar />
+        <RightSidebar editorRef={editorRef}/>
       </div>
     </div>
   );
