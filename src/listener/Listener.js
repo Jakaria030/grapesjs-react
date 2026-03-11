@@ -9,27 +9,20 @@ const Listener = (editor) => {
             component.get('type') === 'video';
 
         if (isVideo) {
-            // get the actual video component
             let videoComponent = component;
             if (el?.tagName === 'SOURCE') {
-                videoComponent = component.parent(); // go up to <video>
+                videoComponent = component.parent();
             }
 
             editor.AssetManager.open({
                 types: ['video'],
                 accept: 'video/*',
-                onSelect: (asset) => {
-                    const url = asset.get('src');
-                    const source = videoComponent.find('source')[0];
-
-                    if (source) {
-                        source.addAttributes({ src: url });
-                    } else {
-                        videoComponent.addAttributes({ src: url });
+                select(asset, complete) {
+                    const selected = editor.getSelected();
+                    if (selected && selected.is('video')) {
+                        selected.addAttributes({ src: asset.getSrc() });
+                        complete && editor.AssetManager.close();
                     }
-
-                    editor.AssetManager.close();
-                    editor.refresh();
                 },
             });
         }
@@ -37,5 +30,6 @@ const Listener = (editor) => {
 
 
 };
+
 
 export default Listener;

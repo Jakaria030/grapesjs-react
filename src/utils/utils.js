@@ -1,10 +1,8 @@
-// getEditorCode.js
 import { BLOCK_STYLES } from '../blockStyles';
 
 export const getHtmlCssJs = (editor) => {
     const rawHtml = editor.getHtml();
 
-    // ── extract JS ──
     const scripts = [];
     const htmlNoScripts = rawHtml.replace(
         /<script\b[^>]*>([\s\S]*?)<\/script>/gi,
@@ -14,7 +12,7 @@ export const getHtmlCssJs = (editor) => {
     const html = htmlNoScripts.replace(/<\/?body[^>]*>/gi, '').trim();
     const js = scripts.join('\n\n').trim();
 
-    // ✅ scan html for used block root classes
+
     const usedCSS = Object.entries(BLOCK_STYLES)
         .filter(([cls]) => html.includes(`class="${cls}`) || html.includes(`class="${cls} `) || html.includes(` ${cls}`))
         .map(([, css]) => css)
@@ -22,7 +20,6 @@ export const getHtmlCssJs = (editor) => {
 
     const fonts = `@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');`;
 
-    // user applied styles from grapesjs
     const userCss = editor.getCss()
         .replace(/<\/?style[^>]*>/gi, '')
         .trim();

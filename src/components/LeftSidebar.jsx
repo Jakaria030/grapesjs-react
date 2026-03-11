@@ -26,7 +26,7 @@ export const BLOCKS = [
         id: 'video',
         label: 'Video',
         media: `<img src='/assets/handle-right.png' draggable='false'/>`,
-        content: '<video controls style="max-width:100%;display:block"><source src="" type="video/mp4"/></video>',
+        content: '<video controls style="max-width:100%;display:block;width:100%"><source src="" type="video/mp4"/></video>',
     },
     {
         id: 'map',
@@ -355,7 +355,6 @@ const LeftSidebar = ({ editorRef }) => {
                         currentStyles[property] = component.getStyle()[property] || '';
                     });
                 })
-                console.log(currentStyles);
                 setStyles(currentStyles);
             });
 
