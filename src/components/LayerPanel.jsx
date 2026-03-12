@@ -2,38 +2,38 @@ import { useEffect, useState } from "react";
 
 // ── tag config ──────────────────────────────────────────
 const TAG_CONFIG = {
-    body:    { color: '#5b6cff', icon: '■' },
-    div:     { color: '#5b6cff', icon: '■' },
+    body: { color: '#5b6cff', icon: '■' },
+    div: { color: '#5b6cff', icon: '■' },
     section: { color: '#ff5b8d', icon: '■' },
     article: { color: '#ff5b8d', icon: '■' },
-    main:    { color: '#ff5b8d', icon: '■' },
-    aside:   { color: '#ff5b8d', icon: '■' },
-    header:  { color: '#ff5b8d', icon: '■' },
-    footer:  { color: '#ff5b8d', icon: '■' },
-    nav:     { color: '#ff5b8d', icon: '■' },
-    h1:      { color: '#ffd15b', icon: '■' },
-    h2:      { color: '#ffd15b', icon: '■' },
-    h3:      { color: '#ffd15b', icon: '■' },
-    h4:      { color: '#ffd15b', icon: '■' },
-    h5:      { color: '#ffd15b', icon: '■' },
-    h6:      { color: '#ffd15b', icon: '■' },
-    p:       { color: '#3ddc84', icon: '■' },
-    span:    { color: '#3ddc84', icon: '■' },
-    a:       { color: '#3ddc84', icon: '■' },
-    button:  { color: '#5b6cff', icon: '■' },
-    input:   { color: '#5b6cff', icon: '■' },
-    form:    { color: '#5b6cff', icon: '■' },
-    img:     { color: '#ff9f5b', icon: '■' },
-    video:   { color: '#ff9f5b', icon: '■' },
-    audio:   { color: '#ff9f5b', icon: '■' },
-    iframe:  { color: '#ff9f5b', icon: '■' },
-    ul:      { color: '#3ddc84', icon: '■' },
-    ol:      { color: '#3ddc84', icon: '■' },
-    li:      { color: '#3ddc84', icon: '■' },
-    table:   { color: '#5b6cff', icon: '■' },
-    tr:      { color: '#5b6cff', icon: '■' },
-    td:      { color: '#5b6cff', icon: '■' },
-    th:      { color: '#5b6cff', icon: '■' },
+    main: { color: '#ff5b8d', icon: '■' },
+    aside: { color: '#ff5b8d', icon: '■' },
+    header: { color: '#ff5b8d', icon: '■' },
+    footer: { color: '#ff5b8d', icon: '■' },
+    nav: { color: '#ff5b8d', icon: '■' },
+    h1: { color: '#ffd15b', icon: '■' },
+    h2: { color: '#ffd15b', icon: '■' },
+    h3: { color: '#ffd15b', icon: '■' },
+    h4: { color: '#ffd15b', icon: '■' },
+    h5: { color: '#ffd15b', icon: '■' },
+    h6: { color: '#ffd15b', icon: '■' },
+    p: { color: '#3ddc84', icon: '■' },
+    span: { color: '#3ddc84', icon: '■' },
+    a: { color: '#3ddc84', icon: '■' },
+    button: { color: '#5b6cff', icon: '■' },
+    input: { color: '#5b6cff', icon: '■' },
+    form: { color: '#5b6cff', icon: '■' },
+    img: { color: '#ff9f5b', icon: '■' },
+    video: { color: '#ff9f5b', icon: '■' },
+    audio: { color: '#ff9f5b', icon: '■' },
+    iframe: { color: '#ff9f5b', icon: '■' },
+    ul: { color: '#3ddc84', icon: '■' },
+    ol: { color: '#3ddc84', icon: '■' },
+    li: { color: '#3ddc84', icon: '■' },
+    table: { color: '#5b6cff', icon: '■' },
+    tr: { color: '#5b6cff', icon: '■' },
+    td: { color: '#5b6cff', icon: '■' },
+    th: { color: '#5b6cff', icon: '■' },
 };
 
 const getConfig = (tagName) =>
@@ -44,10 +44,10 @@ const flattenLayers = (components, depth = 0, result = [], openMap = {}) => {
     if (!components?.models) return result;
 
     components.models.forEach((comp) => {
-        if(comp.get('tagName') === 'script') return;
-        
-        const id    = comp.cid;
-        const tag   = comp.get('tagName') || comp.get('type') || 'div';
+        if (comp.get('tagName') === 'script') return;
+
+        const id = comp.cid;
+        const tag = comp.get('tagName') || comp.get('type') || 'div';
         const label = comp.get('name') || tag;
         const children = comp.get('components');
         const hasChildren = children?.models?.length > 0;
@@ -68,8 +68,8 @@ const LayerRow = ({ item, editor, openMap, onToggleOpen }) => {
     const { color, icon } = getConfig(tag);
 
     const isSelected = editor.getSelected()?.cid === id;
-    const isVisible  = comp.get('visible') !== false;
-    const isOpen     = openMap[id] !== false;
+    const isVisible = comp.get('visible') !== false;
+    const isOpen = openMap[id] !== false;
 
     const toggleVisible = (e) => {
         e.stopPropagation();
@@ -118,7 +118,7 @@ const LayerRow = ({ item, editor, openMap, onToggleOpen }) => {
 
 // ── Main Layer Panel ──────────────────────────────────────
 const LayerPanel = ({ editorRef }) => {
-    const [layers,  setLayers]  = useState([]);
+    const [layers, setLayers] = useState([]);
     const [openMap, setOpenMap] = useState({});
 
     const rebuildLayers = () => {
@@ -141,15 +141,15 @@ const LayerPanel = ({ editorRef }) => {
 
             const editor = editorRef.current;
 
-            editor.on('layer:root',          rebuildLayers);
-            editor.on('layer:component',     rebuildLayers);
-            editor.on('component:add',       rebuildLayers);
-            editor.on('component:remove',    rebuildLayers);
+            editor.on('layer:root', rebuildLayers);
+            editor.on('layer:component', rebuildLayers);
+            editor.on('component:add', rebuildLayers);
+            editor.on('component:remove', rebuildLayers);
 
         }, 100);
 
         return () => clearInterval(interval);
-    }, []);
+    }, [editorRef.current]);
 
     // rebuild when openMap changes
     useEffect(() => { rebuildLayers(); }, [openMap]);
