@@ -1,10 +1,13 @@
 const Heading = (editor) => {
     editor.DomComponents.addType('heading', {
+        extend: 'text',
+
         isComponent: (el) => ['H1', 'H2', 'H3', 'H4', 'H5', 'H6'].includes(el.tagName),
 
         model: {
             defaults: {
                 tagName: 'h2',
+                droppable: false,
                 editable: true,
                 traits: [
                     {

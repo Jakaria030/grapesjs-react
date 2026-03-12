@@ -370,23 +370,23 @@ const LeftSidebar = ({ editorRef }) => {
 
     }, []);
 
-    useEffect(() => {
-        const editor = editorRef.current;
-        if (!editor) return;
 
-        editor.on('component:selected', (component) => {
-            const el = component.getEl();
-            const tag = el?.tagName;
+    const editor = editorRef.current;
+    if (!editor) return;
 
-            if (['H1', 'H2', 'H3', 'H4', 'H5', 'H6'].includes(tag)) {
-                setSelectedHeading(component);
-                setHeadingTag(tag.toLowerCase());
-                setHeadingToolbarOpen(true);
-            } else {
-                setHeadingToolbarOpen(false);
-            }
-        });
-    }, []);
+    editor.on('component:selected', (component) => {
+        const el = component.getEl();
+        const tag = el?.tagName;
+
+        if (['H1', 'H2', 'H3', 'H4', 'H5', 'H6'].includes(tag)) {
+            setSelectedHeading(component);
+            setHeadingTag(tag.toLowerCase());
+            setHeadingToolbarOpen(true);
+        } else {
+            setHeadingToolbarOpen(false);
+        }
+    });
+
 
     const handleHeadingChange = (newTag) => {
         if (!selectedHeading) return;

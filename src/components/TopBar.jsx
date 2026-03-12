@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getHtmlCssJs } from "../utils/utils";
 import Modal from "./Modal";
+import { useNavigate } from "react-router-dom";
 
 const DEVICES = [
     { id: 'desktop', icon: '/assets/desktop-mac.png', label: 'Desktop' },
@@ -9,9 +10,10 @@ const DEVICES = [
     { id: 'mobile', icon: '/assets/mobile-solid.png', label: 'Mobile' },
 ]
 
-const TopBar = ({ editorRef, device, setDevice, }) => {
+const TopBar = ({ editorRef, device, setDevice, onSave }) => {
     const [open, setOpen] = useState(false);
     const [content, setContent] = useState({});
+    const navigate = useNavigate();
 
     const handleUndo = () => {
         const editor = editorRef.current;
@@ -150,11 +152,24 @@ const TopBar = ({ editorRef, device, setDevice, }) => {
         editor.UndoManager.clear();
     }
 
+    const handleBack = () => {
+        navigate("/");
+    };
+
     return (
         <>
             <div className="topbar">
                 {/* Logo */}
                 <span className="topbar-logo">My Editor</span>
+
+                <div className="topbar-divider" />
+
+                <button className="topbar-btn" onClick={handleBack}>
+                    ↩ Back
+                </button>
+                <button className="topbar-btn" onClick={onSave}>
+                    💾 Save
+                </button>
 
                 <div className="topbar-divider" />
 
