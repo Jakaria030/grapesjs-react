@@ -914,7 +914,7 @@ body,
     flex-direction: column;
     font-family: 'DM Sans', sans-serif;
     overflow-y: auto;
-    max-height: calc(100vh - 200px);
+    max-height: calc(100vh - 250px);
     scrollbar-width: thin;
     scrollbar-color: #0f3460 transparent;
 }

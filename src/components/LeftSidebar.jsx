@@ -475,22 +475,6 @@ const LeftSidebar = ({ editorRef }) => {
                                 {selectedEl && (
                                     <div className="style-properties">
 
-                                        {/* <div className="selected-tag">
-                                            &lt;{selectedEl.get('tagName') || 'element'}&gt;
-                                        </div>
-
-                                        {STYLE_PROPERTIES.map(({ label, property, placeholder }) => (
-                                            <div key={property} className="style-row">
-                                                <label className="style-label">{label}</label>
-                                                <input
-                                                    className="style-input"
-                                                    value={styles[property] || ''}
-                                                    placeholder={placeholder}
-                                                    onChange={(e) => handleStyleChange(property, e.target.value)}
-                                                />
-                                            </div>
-                                        ))} */}
-
                                         {<HeadingToolbar
                                             isOpen={headingToolbarOpen}
                                             currentTag={headingTag}
