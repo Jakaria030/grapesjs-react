@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
-// ── tag config ──────────────────────────────────────────
+// ── Tag config ────────────────────────────────────────────
+
 const TAG_CONFIG = {
     body: { color: '#5b6cff', icon: '■' },
     div: { color: '#5b6cff', icon: '■' },
@@ -39,7 +40,8 @@ const TAG_CONFIG = {
 const getConfig = (tagName) =>
     TAG_CONFIG[tagName?.toLowerCase()] || { color: '#aaa', icon: '◻' };
 
-// ── flatten tree ─────────────────────────────────────────
+// ── Flatten tree ──────────────────────────────────────────
+
 const flattenLayers = (components, depth = 0, result = [], openMap = {}) => {
     if (!components?.models) return result;
 
@@ -62,7 +64,8 @@ const flattenLayers = (components, depth = 0, result = [], openMap = {}) => {
     return result;
 };
 
-// ── LayerRow ─────────────────────────────────────────────
+// ── LayerRow ──────────────────────────────────────────────
+
 const LayerRow = ({ item, editor, openMap, onToggleOpen }) => {
     const { id, label, tag, depth, comp, hasChildren } = item;
     const { color, icon } = getConfig(tag);
@@ -84,7 +87,6 @@ const LayerRow = ({ item, editor, openMap, onToggleOpen }) => {
             style={{ paddingLeft: 8 + depth * 14 }}
             onClick={() => editor.select(comp)}
         >
-            {/* tree line + arrow */}
             <span
                 className="lyr-arrow"
                 style={{ opacity: hasChildren ? 1 : 0, pointerEvents: hasChildren ? 'auto' : 'none' }}
@@ -93,16 +95,10 @@ const LayerRow = ({ item, editor, openMap, onToggleOpen }) => {
                 {isOpen ? '▾' : '▸'}
             </span>
 
-            {/* icon */}
             <span className="lyr-icon" style={{ color }}>{icon}</span>
-
-            {/* label */}
             <span className="lyr-label">{label}</span>
-
-            {/* tag badge */}
             <span className="lyr-tag">{tag}</span>
 
-            {/* actions */}
             <div className="lyr-actions">
                 <button
                     className={`lyr-btn ${!isVisible ? 'lyr-btn-off' : ''}`}
@@ -117,16 +113,15 @@ const LayerRow = ({ item, editor, openMap, onToggleOpen }) => {
 };
 
 // ── Main Layer Panel ──────────────────────────────────────
+
 const LayerPanel = ({ editorRef }) => {
     const [layers, setLayers] = useState([]);
     const [openMap, setOpenMap] = useState({});
 
     const rebuildLayers = () => {
         if (!editorRef?.current) return;
-
         const root = editorRef.current.DomComponents.getWrapper();
         const flat = flattenLayers(root.get('components'), 0, [], openMap);
-
         setLayers(flat);
     };
 
@@ -140,21 +135,16 @@ const LayerPanel = ({ editorRef }) => {
             clearInterval(interval);
 
             const editor = editorRef.current;
-
-            editor.on('layer:root', rebuildLayers);
-            editor.on('layer:component', rebuildLayers);
             editor.on('component:add', rebuildLayers);
             editor.on('component:remove', rebuildLayers);
-
+            editor.on('layer:root', rebuildLayers);
+            editor.on('layer:component', rebuildLayers);
         }, 100);
 
         return () => clearInterval(interval);
     }, [editorRef.current]);
 
-    // rebuild when openMap changes
     useEffect(() => { rebuildLayers(); }, [openMap]);
-
-
 
     return (
         <div className="lyr-panel">
@@ -170,7 +160,6 @@ const LayerPanel = ({ editorRef }) => {
                         onToggleOpen={toggleOpen}
                     />
                 ))
-
             )}
         </div>
     );

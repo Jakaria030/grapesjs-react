@@ -1,3 +1,5 @@
+// components/editor/HeadingToolbar.jsx
+
 const TAGS = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
 
 const HeadingToolbar = ({ isOpen, currentTag, onChange }) => {
@@ -6,7 +8,6 @@ const HeadingToolbar = ({ isOpen, currentTag, onChange }) => {
     return (
         <div className="style-row">
             <label className="style-label">Heading</label>
-
             <div className="heading-toolbar">
                 {TAGS.map((tag) => (
                     <button

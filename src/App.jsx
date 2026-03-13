@@ -1,7 +1,7 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Dashboard from "./pages/Dashboard";
-import Editor from "./pages/Editor";
-import "./index.css";
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import Dashboard from './pages/Dashboard';
+import Editor from './pages/Editor';
+import './index.css';
 
 const App = () => {
   return (

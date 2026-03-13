@@ -1,4 +1,5 @@
-const Listener = (editor) => {
+
+export const registerListeners = (editor) => {
     editor.on('component:selected', (component) => {
         const el = component.getEl();
 
@@ -27,9 +28,4 @@ const Listener = (editor) => {
             });
         }
     });
-
-
 };
-
-
-export default Listener;

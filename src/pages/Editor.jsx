@@ -1,69 +1,23 @@
 import { useEffect, useRef, useState } from 'react';
-import grapesjs from 'grapesjs';
-import 'grapesjs/dist/css/grapes.min.css';
-import TopBar from '../components/TopBar';
-import LeftSidebar, { BLOCKS } from '../components/LeftSidebar';
-import RightSidebar from '../components/RightSidebar';
-import Listener from '../listener/Listener';
-import Heading from '../domComponents/Heading';
 import { useParams } from 'react-router-dom';
+import TopBar from '../components/editor/TopBar';
+import LeftSidebar from '../components/editor/LeftSidebar';
+import RightSidebar from '../components/editor/RightSidebar';
+import { initEditor } from '../lib/editor/initEditor';
+import { useProject } from '../hooks/useProject';
+import Loading from '../components/ui/Loading';
 
 const Editor = () => {
     const editorRef = useRef(null);
     const [device, setDevice] = useState('desktop');
     const { id } = useParams();
-    const [project, setProject] = useState(null);
+    const { project, loading, saveProject } = useProject(id);
 
     useEffect(() => {
-        const fetchAndInit = async () => {
-            // Fetch project
-            const res = await fetch(`http://localhost:3001/projects/${id}`);
-            const data = await res.json();
-            setProject(data);
+        if (!project) return;
 
-            // Initialize GrapesJS
-            const editor = grapesjs.init({
-                container: '#gjs',
-                height: '100%',
-                width: '100%',
-                storageManager: false,
-                panels: { defaults: [] },
-                blockManager: { blocks: [] },
-                styleManager: { appendTo: null, sectors: [] },
-                layerManager: { custom: true },
-                traitManager: { appendTo: null },
-                deviceManager: {
-                    devices: [
-                        { name: 'Desktop', width: '' },
-                        { name: 'Laptop', width: '1024px' },
-                        { name: 'Tablet', width: '768px' },
-                        { name: 'Mobile', width: '375px' },
-                    ],
-                },
-                assetManager: { assets: [], upload: false, showUrlInput: true },
-                allowScripts: 1,
-                canvas: { styles: ['/static/canvasStyle.css'] },
-            });
-
-            if (data.gjsData) {
-                editor.loadProjectData(data.gjsData);
-            }
-
-
-            editorRef.current = editor;
-
-            // Add blocks
-            const bm = editor.BlockManager;
-            BLOCKS.forEach((block) => {
-                bm.add(block.id, { label: block.label, content: block.content });
-            });
-
-            // Initialize listeners
-            Listener(editor);
-            Heading(editor);
-        };
-
-        fetchAndInit();
+        const editor = initEditor({ gjsData: project.gjsData });
+        editorRef.current = editor;
 
         return () => {
             if (editorRef.current) {
@@ -71,40 +25,35 @@ const Editor = () => {
                 editorRef.current = null;
             }
         };
-    }, [id]);
+    }, [project]);
 
-
-    // save project data
     const handleSave = async () => {
+        if (!editorRef.current) return;
         const gjsData = editorRef.current.getProjectData();
+        const ok = await saveProject(gjsData);
+        if (ok) alert('Data saved!');
+    };
 
-        const res = await fetch(`http://localhost:3001/projects/${id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ...project, gjsData })
-        });
-
-        if (res.ok) {
-            alert("Data saved!");
-        }
-    }
-
+    if (loading) return <Loading />;
 
     return (
         <div className="editor-wrapper">
-            <TopBar editorRef={editorRef} device={device} setDevice={setDevice} onSave={handleSave} />
+            <TopBar
+                editorRef={editorRef}
+                device={device}
+                setDevice={setDevice}
+                onSave={handleSave}
+            />
 
             <div className="editor-body">
                 <LeftSidebar editorRef={editorRef} />
-
                 <div className="canvas-area">
                     <div id="gjs"></div>
                 </div>
-
                 <RightSidebar editorRef={editorRef} />
             </div>
         </div>
     );
-}
+};
 
 export default Editor;

@@ -1,5 +1,5 @@
-import { useState } from "react";
-import LayerPanel from "./LayerPanel";
+import { useState } from 'react';
+import LayerPanel from './LayerPanel';
 
 const RightSidebar = ({ editorRef }) => {
     const [collapsed, setCollapsed] = useState(false);

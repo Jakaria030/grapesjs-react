@@ -1,124 +1,42 @@
-// StylePanel.jsx
 import { useState } from 'react';
+import {
+    BACKFACE_OPTIONS,
+    BG_ATTACHMENT_OPTIONS,
+    BG_BLEND_OPTIONS,
+    BG_POSITION_OPTIONS,
+    BG_REPEAT_OPTIONS,
+    BG_SIZE_OPTIONS,
+    BORDER_STYLE_OPTIONS,
+    CURSOR_OPTIONS,
+    DIMENSION_PROPS,
+    FLEX_INPUT_PROPS,
+    FLEX_SELECT_PROPS,
+    FONT_STYLE_OPTIONS,
+    FONT_WEIGHT_OPTIONS,
+    GRID_INPUT_PROPS,
+    GRID_SELECT_PROPS,
+    GRID_TEXT_PROPS,
+    OBJECT_FIT_OPTIONS,
+    OUTLINE_STYLE_OPTIONS,
+    OVERFLOW_OPTIONS,
+    POINTER_EVENTS_OPTIONS,
+    POSITION_OPTIONS,
+    RESIZE_OPTIONS,
+    SCROLL_BEHAVIOR_OPTIONS,
+    SPACING_PROPS,
+    TEXT_ALIGN_OPTIONS,
+    TEXT_DECORATION_OPTIONS,
+    TEXT_OVERFLOW_OPTIONS,
+    TEXT_TRANSFORM_OPTIONS,
+    TOUCH_ACTION_OPTIONS,
+    TRANSFORM_ORIGIN_OPTIONS,
+    TYPOGRAPHY_PROPS,
+    USER_SELECT_OPTIONS,
+    WHITE_SPACE_OPTIONS,
+    WILL_CHANGE_OPTIONS,
+    WORD_BREAK_OPTIONS
+} from '../../constants/styleProps';
 
-// ── Property Groups ──────────────────────────────────────
-
-export const DIMENSION_PROPS = [
-    { label: 'Width',      property: 'width',      placeholder: '100' },
-    { label: 'Height',     property: 'height',     placeholder: '100' },
-    { label: 'Min Width',  property: 'min-width',  placeholder: '0'   },
-    { label: 'Min Height', property: 'min-height', placeholder: '0'   },
-    { label: 'Max Width',  property: 'max-width',  placeholder: '100' },
-    { label: 'Max Height', property: 'max-height', placeholder: '100' },
-];
-
-export const SPACING_PROPS = [
-    { label: 'Padding Top',    property: 'padding-top',    placeholder: '0' },
-    { label: 'Padding Right',  property: 'padding-right',  placeholder: '0' },
-    { label: 'Padding Bottom', property: 'padding-bottom', placeholder: '0' },
-    { label: 'Padding Left',   property: 'padding-left',   placeholder: '0' },
-    { label: 'Margin Top',     property: 'margin-top',     placeholder: '0' },
-    { label: 'Margin Right',   property: 'margin-right',   placeholder: '0' },
-    { label: 'Margin Bottom',  property: 'margin-bottom',  placeholder: '0' },
-    { label: 'Margin Left',    property: 'margin-left',    placeholder: '0' },
-];
-
-export const TYPOGRAPHY_PROPS = [
-    { label: 'Font Size',      property: 'font-size',      placeholder: '16', unit: 'px' },
-    { label: 'Line Height',    property: 'line-height',    placeholder: '1.5', unit: ''  },
-    { label: 'Letter Spacing', property: 'letter-spacing', placeholder: '0',  unit: 'px' },
-    { label: 'Word Spacing',   property: 'word-spacing',   placeholder: '0',  unit: 'px' },
-];
-
-export const FLEX_SELECT_PROPS = [
-    {
-        label: 'Direction', property: 'flex-direction',
-        options: ['row', 'row-reverse', 'column', 'column-reverse'],
-    },
-    {
-        label: 'Justify Content', property: 'justify-content',
-        options: ['flex-start', 'flex-end', 'center', 'space-between', 'space-around', 'space-evenly'],
-    },
-    {
-        label: 'Align Items', property: 'align-items',
-        options: ['stretch', 'flex-start', 'flex-end', 'center', 'baseline'],
-    },
-    {
-        label: 'Align Self', property: 'align-self',
-        options: ['auto', 'stretch', 'flex-start', 'flex-end', 'center', 'baseline'],
-    },
-    {
-        label: 'Flex Wrap', property: 'flex-wrap',
-        options: ['nowrap', 'wrap', 'wrap-reverse'],
-    },
-    {
-        label: 'Align Content', property: 'align-content',
-        options: ['stretch', 'flex-start', 'flex-end', 'center', 'space-between', 'space-around'],
-    },
-];
-
-export const FLEX_INPUT_PROPS = [
-    { label: 'Gap',         property: 'gap',         placeholder: '0', unit: 'px' },
-    { label: 'Row Gap',     property: 'row-gap',     placeholder: '0', unit: 'px' },
-    { label: 'Column Gap',  property: 'column-gap',  placeholder: '0', unit: 'px' },
-    { label: 'Flex Grow',   property: 'flex-grow',   placeholder: '0', unit: ''   },
-    { label: 'Flex Shrink', property: 'flex-shrink', placeholder: '1', unit: ''   },
-    { label: 'Flex Basis',  property: 'flex-basis',  placeholder: '0', unit: 'px' },
-    { label: 'Order',       property: 'order',       placeholder: '0', unit: ''   },
-];
-
-export const GRID_TEXT_PROPS = [
-    { label: 'Template Columns', property: 'grid-template-columns', placeholder: 'repeat(3, 1fr)' },
-    { label: 'Template Rows',    property: 'grid-template-rows',    placeholder: 'auto'           },
-    { label: 'Template Areas',   property: 'grid-template-areas',   placeholder: '"a b" "c d"'    },
-    { label: 'Grid Column',      property: 'grid-column',           placeholder: '1 / 3'          },
-    { label: 'Grid Row',         property: 'grid-row',              placeholder: '1 / 2'          },
-    { label: 'Grid Area',        property: 'grid-area',             placeholder: 'header'         },
-];
-
-export const GRID_SELECT_PROPS = [
-    {
-        label: 'Auto Flow', property: 'grid-auto-flow',
-        options: ['row', 'column', 'dense', 'row dense', 'column dense'],
-    },
-    {
-        label: 'Justify Items', property: 'justify-items',
-        options: ['stretch', 'start', 'end', 'center'],
-    },
-    {
-        label: 'Align Items', property: 'align-items',
-        options: ['stretch', 'start', 'end', 'center', 'baseline'],
-    },
-    {
-        label: 'Place Items', property: 'place-items',
-        options: ['stretch', 'start', 'end', 'center'],
-    },
-];
-
-export const GRID_INPUT_PROPS = [
-    { label: 'Column Gap', property: 'column-gap', placeholder: '0', unit: 'px' },
-    { label: 'Row Gap',    property: 'row-gap',    placeholder: '0', unit: 'px' },
-    { label: 'Gap',        property: 'gap',        placeholder: '0', unit: 'px' },
-];
-
-// ── Constants ─────────────────────────────────────────────
-
-const POSITION_OPTIONS        = ['static', 'relative', 'absolute', 'fixed', 'sticky'];
-const OVERFLOW_OPTIONS        = ['visible', 'hidden', 'scroll', 'auto', 'clip'];
-const OBJECT_FIT_OPTIONS      = ['fill', 'contain', 'cover', 'none', 'scale-down'];
-const FONT_WEIGHT_OPTIONS     = ['100', '200', '300', '400', '500', '600', '700', '800', '900'];
-const FONT_STYLE_OPTIONS      = ['normal', 'italic', 'oblique'];
-const TEXT_ALIGN_OPTIONS      = ['left', 'center', 'right', 'justify'];
-const TEXT_TRANSFORM_OPTIONS  = ['none', 'uppercase', 'lowercase', 'capitalize'];
-const TEXT_DECORATION_OPTIONS = ['none', 'underline', 'line-through', 'overline'];
-const WHITE_SPACE_OPTIONS     = ['normal', 'nowrap', 'pre', 'pre-wrap', 'pre-line', 'break-spaces'];
-const WORD_BREAK_OPTIONS      = ['normal', 'break-all', 'keep-all', 'break-word'];
-const TEXT_OVERFLOW_OPTIONS   = ['clip', 'ellipsis'];
-const CURSOR_OPTIONS          = ['default', 'pointer', 'text', 'move', 'grab', 'grabbing', 'crosshair', 'not-allowed', 'zoom-in', 'zoom-out', 'wait', 'help', 'none'];
-const POINTER_EVENTS_OPTIONS  = ['auto', 'none', 'all'];
-const USER_SELECT_OPTIONS     = ['auto', 'none', 'text', 'all'];
-const RESIZE_OPTIONS          = ['none', 'both', 'horizontal', 'vertical'];
-const SCROLL_BEHAVIOR_OPTIONS = ['auto', 'smooth'];
 
 // ── Sub Components ───────────────────────────────────────
 
@@ -420,10 +338,10 @@ const StylePanel = ({ selectedEl, styles, onChange }) => {
                     onChange={onChange}
                 />
                 <div className="sp-grid-2">
-                    <PixelInput label="Top"    property="top"    placeholder="0" unit="px" styles={styles} onChange={onChange} />
-                    <PixelInput label="Right"  property="right"  placeholder="0" unit="px" styles={styles} onChange={onChange} />
+                    <PixelInput label="Top" property="top" placeholder="0" unit="px" styles={styles} onChange={onChange} />
+                    <PixelInput label="Right" property="right" placeholder="0" unit="px" styles={styles} onChange={onChange} />
                     <PixelInput label="Bottom" property="bottom" placeholder="0" unit="px" styles={styles} onChange={onChange} />
-                    <PixelInput label="Left"   property="left"   placeholder="0" unit="px" styles={styles} onChange={onChange} />
+                    <PixelInput label="Left" property="left" placeholder="0" unit="px" styles={styles} onChange={onChange} />
                 </div>
                 <PixelInput label="Z-Index" property="z-index" placeholder="0" unit="" styles={styles} onChange={onChange} />
             </Section>
@@ -451,35 +369,35 @@ const StylePanel = ({ selectedEl, styles, onChange }) => {
                 <SelectInput
                     label="Size"
                     property="background-size"
-                    options={['auto', 'cover', 'contain', '100% 100%', '50% auto']}
+                    options={BG_SIZE_OPTIONS}
                     styles={styles}
                     onChange={onChange}
                 />
                 <SelectInput
                     label="Position"
                     property="background-position"
-                    options={['center', 'top', 'bottom', 'left', 'right', 'top left', 'top right', 'bottom left', 'bottom right']}
+                    options={BG_POSITION_OPTIONS}
                     styles={styles}
                     onChange={onChange}
                 />
                 <SelectInput
                     label="Repeat"
                     property="background-repeat"
-                    options={['repeat', 'no-repeat', 'repeat-x', 'repeat-y', 'round', 'space']}
+                    options={BG_REPEAT_OPTIONS}
                     styles={styles}
                     onChange={onChange}
                 />
                 <SelectInput
                     label="Attachment"
                     property="background-attachment"
-                    options={['scroll', 'fixed', 'local']}
+                    options={BG_ATTACHMENT_OPTIONS}
                     styles={styles}
                     onChange={onChange}
                 />
                 <SelectInput
                     label="Blend Mode"
                     property="background-blend-mode"
-                    options={['normal', 'multiply', 'screen', 'overlay', 'darken', 'lighten', 'color-dodge', 'color-burn', 'hard-light', 'soft-light', 'difference', 'exclusion']}
+                    options={BG_BLEND_OPTIONS}
                     styles={styles}
                     onChange={onChange}
                 />
@@ -488,29 +406,29 @@ const StylePanel = ({ selectedEl, styles, onChange }) => {
 
             {/* ── Border ── */}
             <Section title="Border">
-                <PixelInput label="Border Width"  property="border-width"  placeholder="1" unit="px" styles={styles} onChange={onChange} />
+                <PixelInput label="Border Width" property="border-width" placeholder="1" unit="px" styles={styles} onChange={onChange} />
                 <SelectInput
                     label="Border Style"
                     property="border-style"
-                    options={['none', 'solid', 'dashed', 'dotted', 'double', 'groove', 'ridge']}
+                    options={BORDER_STYLE_OPTIONS}
                     styles={styles}
                     onChange={onChange}
                 />
-                <ColorInput label="Border Color"  property="border-color"  styles={styles} onChange={onChange} />
+                <ColorInput label="Border Color" property="border-color" styles={styles} onChange={onChange} />
                 <PixelInput label="Border Radius" property="border-radius" placeholder="0" unit="px" styles={styles} onChange={onChange} />
-                <PixelInput label="Top Width"    property="border-top-width"    placeholder="0" unit="px" styles={styles} onChange={onChange} />
-                <PixelInput label="Right Width"  property="border-right-width"  placeholder="0" unit="px" styles={styles} onChange={onChange} />
+                <PixelInput label="Top Width" property="border-top-width" placeholder="0" unit="px" styles={styles} onChange={onChange} />
+                <PixelInput label="Right Width" property="border-right-width" placeholder="0" unit="px" styles={styles} onChange={onChange} />
                 <PixelInput label="Bottom Width" property="border-bottom-width" placeholder="0" unit="px" styles={styles} onChange={onChange} />
-                <PixelInput label="Left Width"   property="border-left-width"   placeholder="0" unit="px" styles={styles} onChange={onChange} />
-                <PixelInput label="Outline Width"  property="outline-width"  placeholder="0" unit="px" styles={styles} onChange={onChange} />
+                <PixelInput label="Left Width" property="border-left-width" placeholder="0" unit="px" styles={styles} onChange={onChange} />
+                <PixelInput label="Outline Width" property="outline-width" placeholder="0" unit="px" styles={styles} onChange={onChange} />
                 <SelectInput
                     label="Outline Style"
                     property="outline-style"
-                    options={['none', 'solid', 'dashed', 'dotted', 'double']}
+                    options={OUTLINE_STYLE_OPTIONS}
                     styles={styles}
                     onChange={onChange}
                 />
-                <ColorInput label="Outline Color"  property="outline-color"  styles={styles} onChange={onChange} />
+                <ColorInput label="Outline Color" property="outline-color" styles={styles} onChange={onChange} />
                 <PixelInput label="Outline Offset" property="outline-offset" placeholder="0" unit="px" styles={styles} onChange={onChange} />
             </Section>
 
@@ -526,7 +444,7 @@ const StylePanel = ({ selectedEl, styles, onChange }) => {
                 <SelectInput
                     label="Origin"
                     property="transform-origin"
-                    options={['center', 'top', 'top left', 'top right', 'bottom', 'bottom left', 'bottom right', 'left', 'right']}
+                    options={TRANSFORM_ORIGIN_OPTIONS}
                     styles={styles}
                     onChange={onChange}
                 />
@@ -541,7 +459,7 @@ const StylePanel = ({ selectedEl, styles, onChange }) => {
                 <SelectInput
                     label="Backface"
                     property="backface-visibility"
-                    options={['visible', 'hidden']}
+                    options={BACKFACE_OPTIONS}
                     styles={styles}
                     onChange={onChange}
                 />
@@ -587,14 +505,14 @@ const StylePanel = ({ selectedEl, styles, onChange }) => {
                 <SelectInput
                     label="Touch Action"
                     property="touch-action"
-                    options={['auto', 'none', 'pan-x', 'pan-y', 'manipulation']}
+                    options={TOUCH_ACTION_OPTIONS}
                     styles={styles}
                     onChange={onChange}
                 />
                 <SelectInput
                     label="Will Change"
                     property="will-change"
-                    options={['auto', 'transform', 'opacity', 'contents']}
+                    options={WILL_CHANGE_OPTIONS}
                     styles={styles}
                     onChange={onChange}
                 />
