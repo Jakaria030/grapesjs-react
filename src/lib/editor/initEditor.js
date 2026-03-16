@@ -4,7 +4,7 @@ import { BLOCKS } from '../../constants/blocks';
 import { registerHeading } from './registerHeading';
 import { registerListeners } from './registerListeners';
 
-export const initEditor = ({ gjsData } = {}) => {
+export const initEditor = ({ gjsData, onAssetOpen } = {}) => {
     const editor = grapesjs.init({
         container: '#gjs',
         height: '100%',
@@ -17,13 +17,18 @@ export const initEditor = ({ gjsData } = {}) => {
         traitManager: { appendTo: null },
         deviceManager: {
             devices: [
-                { name: 'Desktop', width: ''      },
-                { name: 'Laptop',  width: '1024px'},
-                { name: 'Tablet',  width: '768px' },
-                { name: 'Mobile',  width: '375px' },
+                { name: 'Desktop', width: '' },
+                { name: 'Laptop', width: '1024px' },
+                { name: 'Tablet', width: '768px' },
+                { name: 'Mobile', width: '375px' },
             ],
         },
-        assetManager: { assets: [], upload: false, showUrlInput: true },
+        assetManager: {
+            custom: true,
+        },
+        modal: {
+            custom: true,
+        },
         allowScripts: 1,
         canvas: { styles: ['/static/canvasStyle.css'] },
     });
@@ -40,7 +45,7 @@ export const initEditor = ({ gjsData } = {}) => {
 
     // Register custom component types and listeners
     registerHeading(editor);
-    registerListeners(editor);
+    registerListeners(editor, {onAssetOpen});
 
     return editor;
 };

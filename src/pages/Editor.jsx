@@ -6,17 +6,27 @@ import RightSidebar from '../components/editor/RightSidebar';
 import { initEditor } from '../lib/editor/initEditor';
 import { useProject } from '../hooks/useProject';
 import Loading from '../components/ui/Loading';
+import AssetManagerModal from '../components/dashboard/AssetManagerModal';
 
 const Editor = () => {
     const editorRef = useRef(null);
     const [device, setDevice] = useState('desktop');
     const { id } = useParams();
     const { project, loading, saveProject } = useProject(id);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [assetProps, setAssetProps] = useState(null);
 
     useEffect(() => {
         if (!project) return;
 
-        const editor = initEditor({ gjsData: project.gjsData });
+        const editor = initEditor({
+            gjsData: project.gjsData,
+            onAssetOpen: (props) => {
+                setAssetProps(props);
+                setIsModalOpen(true);
+            },
+        });
+
         editorRef.current = editor;
 
         return () => {
@@ -26,6 +36,7 @@ const Editor = () => {
             }
         };
     }, [project]);
+
 
     const handleSave = async () => {
         if (!editorRef.current) return;
@@ -52,6 +63,17 @@ const Editor = () => {
                 </div>
                 <RightSidebar editorRef={editorRef} />
             </div>
+
+            <AssetManagerModal
+                isOpen={isModalOpen}
+                onClose={() => {
+                    setIsModalOpen(false);
+                    assetProps?.close();
+                }}
+                assetProps={assetProps}
+                projectId={id}
+            />
+
         </div>
     );
 };
