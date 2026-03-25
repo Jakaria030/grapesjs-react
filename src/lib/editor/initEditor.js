@@ -8,14 +8,19 @@ export function buildSliderHTML({ slides, settings }) {
     const { showArrows, showPagination, paginationType, autoplay, autoplaySpeed } = settings;
 
     const slideHTML = slides.map((slide, i) => `
-        <div style="min-width:100%;height:100%;position:relative;flex-shrink:0;">
-            <img src="${slide.url}" style="width:100%;height:100%;object-fit:cover;display:block;" />
-        </div>
+    <div style="min-width:100%;height:100%;position:relative;flex-shrink:0;pointer-events:none;">
+        <img
+            src="${slide.url}"
+            data-slide-index="${i}"
+            class="sld-img"
+            style="width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;"
+        />
+    </div>
     `).join('');
 
     const arrowsHTML = showArrows ? `
-        <button class="sld-prev" style="position:absolute;top:50%;left:12px;transform:translateY(-50%);background:rgba(0,0,0,0.5);color:white;border:none;width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer;z-index:10;">&#8592;</button>
-        <button class="sld-next" style="position:absolute;top:50%;right:12px;transform:translateY(-50%);background:rgba(0,0,0,0.5);color:white;border:none;width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer;z-index:10;">&#8594;</button>
+    <button class="sld-prev" style="position:absolute;top:50%;left:12px;transform:translateY(-50%);background:rgba(0,0,0,0.5);color:white;border:none;width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer;z-index:10;pointer-events:all;">&#8592;</button>
+    <button class="sld-next" style="position:absolute;top:50%;right:12px;transform:translateY(-50%);background:rgba(0,0,0,0.5);color:white;border:none;width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer;z-index:10;pointer-events:all;">&#8594;</button>
     ` : '';
 
     const dotsHTML = slides.map((_, i) => `
@@ -28,11 +33,11 @@ export function buildSliderHTML({ slides, settings }) {
         </div>
     ` : '';
 
-    // ✅ JS lives inside the HTML — saved by GrapesJS, works everywhere
     const scriptHTML = `
-        <script>
+    <script>
         (function() {
-            var track = document.currentScript.parentElement.querySelector('.sld-track');
+            var root = document.currentScript.parentElement;
+            var track = root.querySelector('.sld-track');
             if (!track) return;
 
             var total = ${slides.length};
@@ -42,25 +47,29 @@ export function buildSliderHTML({ slides, settings }) {
             var speed = ${autoplaySpeed};
             var showPagination = ${showPagination};
             var paginationType = '${paginationType}';
-            var root = track.parentElement;
 
-            function goTo(index) {
-                current = (index + total) % total;
-                track.style.transform = 'translateX(-' + (current * 100) + '%)';
-
-                if (showPagination && paginationType === 'dots') {
-                    var dots = root.querySelectorAll('.sld-dot');
-                    dots.forEach(function(d, i) { d.style.opacity = i === current ? '1' : '0.4'; });
+            function updatePagination() {
+                if (!showPagination) return;
+                if (paginationType === 'dots' && autoplay) {
+                    root.querySelectorAll('.sld-dot').forEach(function(d, i) {
+                        d.style.opacity = i === current ? '1' : '0.4';
+                    });
                 }
-
-                if (showPagination && paginationType === 'numbers') {
+                if (paginationType === 'numbers') {
                     var counter = root.querySelector('.sld-counter');
                     if (counter) counter.textContent = (current + 1) + ' / ' + total;
                 }
             }
 
+            function goTo(index) {
+                current = (index + total) % total;
+                track.style.transform = 'translateX(-' + (current * 100) + '%)';
+                updatePagination();
+            }
+
             function startAuto() {
                 if (!autoplay) return;
+                if (timer) return;
                 timer = setInterval(function() { goTo(current + 1); }, speed);
             }
 
@@ -69,83 +78,55 @@ export function buildSliderHTML({ slides, settings }) {
                 timer = null;
             }
 
+            // arrows
             var prev = root.querySelector('.sld-prev');
             var next = root.querySelector('.sld-next');
+            if (prev) prev.addEventListener('click', function() {
+                stopAuto();
+                goTo(current - 1);
+                startAuto();
+            });
+            if (next) next.addEventListener('click', function() {
+                stopAuto();
+                goTo(current + 1);
+                startAuto();
+            });
 
-            if (prev) prev.addEventListener('click', function() { stopAuto(); goTo(current - 1); startAuto(); });
-            if (next) next.addEventListener('click', function() { stopAuto(); goTo(current + 1); startAuto(); });
-
+            // dots
             if (showPagination && paginationType === 'dots') {
                 root.querySelectorAll('.sld-dot').forEach(function(dot, i) {
-                    dot.addEventListener('click', function() { stopAuto(); goTo(i); startAuto(); });
+                    dot.addEventListener('click', function() {
+                        stopAuto();
+                        goTo(i);
+                        startAuto();
+                    });
                 });
             }
 
+            // init
+            updatePagination();
             startAuto();
         })();
-        <\/script>
+    <\/script>
     `;
 
     return `
-        <div class="sld-root" style="width:100%;max-width:1400px;height:400px;position:relative;overflow:hidden;background:#111;">
-            <div class="sld-track" style="display:flex;height:100%;transition:transform 0.4s ease;">
-                ${slideHTML}
-            </div>
-            ${arrowsHTML}
-            ${paginationHTML}
-            ${scriptHTML}
+        <div class="sld-root"
+        data-autoplay="${autoplay}"
+        data-speed="${autoplaySpeed}"
+        data-arrows="${showArrows}"
+        data-pagination="${showPagination}"
+        data-pagination-type="${paginationType}"
+        data-slide-count="${slides.length}"
+        style="width:100%;max-width:1400px;height:400px;position:relative;overflow:hidden;background:#111;pointer-events:all;">
+        <div class="sld-track" style="display:flex;height:100%;transition:transform 0.4s ease;pointer-events:none;">
+            ${slideHTML}
         </div>
+        ${arrowsHTML}
+        ${paginationHTML}
+        ${scriptHTML}
+    </div>
     `;
-}
-
-export function initSliderRuntime(doc, slideCount, settings) {
-    const track = doc.querySelector('.sld-track');
-    if (!track) return;
-
-    const { showArrows, showPagination, paginationType, autoplay, autoplaySpeed } = settings;
-
-    let current = 0;
-    let timer = null;
-
-    function goTo(index) {
-        current = (index + slideCount) % slideCount;
-        track.style.transform = `translateX(-${current * 100}%)`;
-
-        if (showPagination && paginationType === 'dots') {
-            const dots = doc.querySelectorAll('.sld-dot');
-            dots.forEach((d, i) => { d.style.opacity = i === current ? '1' : '0.4'; });
-        }
-
-        if (showPagination && paginationType === 'numbers') {
-            const counter = doc.querySelector('.sld-counter');
-            if (counter) counter.textContent = `${current + 1} / ${slideCount}`;
-        }
-    }
-
-    function startAuto() {
-        if (!autoplay) return;
-        timer = setInterval(() => goTo(current + 1), autoplaySpeed);
-    }
-
-    function stopAuto() {
-        clearInterval(timer);
-        timer = null;
-    }
-
-    const prev = doc.querySelector('.sld-prev');
-    const next = doc.querySelector('.sld-next');
-
-    if (prev) prev.addEventListener('click', () => { stopAuto(); goTo(current - 1); startAuto(); });
-    if (next) next.addEventListener('click', () => { stopAuto(); goTo(current + 1); startAuto(); });
-
-    if (showPagination && paginationType === 'dots') {
-        doc.querySelectorAll('.sld-dot').forEach((dot, i) => {
-            dot.addEventListener('click', () => { stopAuto(); goTo(i); startAuto(); });
-        });
-    }
-
-    startAuto();
-
 }
 
 export const initEditor = ({ gjsData, onAssetOpen } = {}) => {
@@ -179,7 +160,15 @@ export const initEditor = ({ gjsData, onAssetOpen } = {}) => {
 
 
     editor.DomComponents.addType('image-slider', {
-        model: { defaults: { tagName: 'div' } }
+        isComponent: el => el?.classList?.contains('sld-root'),
+        model: {
+            defaults: {
+                tagName: 'div',
+                droppable: false,
+                selectable: true,
+                hoverable: true,
+            }
+        }
     });
 
     // Register blocks

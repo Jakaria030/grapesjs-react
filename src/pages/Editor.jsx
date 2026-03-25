@@ -18,6 +18,10 @@ const Editor = () => {
     const [assetProps, setAssetProps] = useState(null);
     const [sliderModalOpen, setSliderModalOpen] = useState(false);
     const [sliderComponent, setSliderComponent] = useState(null);
+    const [sliderToolbar, setSliderToolbar] = useState(false);
+
+    const [sliderInitialSlides, setSliderInitialSlides] = useState(null);
+    const [sliderInitialSettings, setSliderInitialSettings] = useState(null);
 
     useEffect(() => {
         if (!project) return;
@@ -30,7 +34,6 @@ const Editor = () => {
             },
         });
 
-        editorRef.current = editor;
 
         editor.on("block:drag:stop", (component) => {
             if (!component) return;
@@ -40,6 +43,20 @@ const Editor = () => {
             }
         });
 
+        editor.on('component:selected', (component) => {
+            if (component.get('type') !== 'image-slider') return;
+            const el = component.getEl();
+            if (!el) return;
+
+            setSliderToolbar(true);
+        });
+
+        editor.on('component:deselected', () => {
+            setSliderToolbar(false);
+        });
+
+        editorRef.current = editor;
+
         return () => {
             if (editorRef.current) {
                 editorRef.current.destroy();
@@ -47,6 +64,27 @@ const Editor = () => {
             }
         };
     }, [project]);
+
+    const getSliderDataFromComponent = (component) => {
+        const el = component?.getEl();
+        if (!el) return { slides: [], settings: {} };
+
+        const settings = {
+            autoplay: el.dataset.autoplay === 'true',
+            autoplaySpeed: Number(el.dataset.speed) || 3000,
+            showArrows: el.dataset.arrows === 'true',
+            showPagination: el.dataset.pagination === 'true',
+            paginationType: el.dataset.paginationType || 'dots',
+        };
+
+        const imgEls = el.querySelectorAll('.sld-img');
+        const slides = Array.from(imgEls).map((img) => ({
+            url: img.src,
+            caption: '',
+        }));
+
+        return { slides, settings };
+    };
 
 
     const handleSave = async () => {
@@ -65,6 +103,21 @@ const Editor = () => {
                 device={device}
                 setDevice={setDevice}
                 onSave={handleSave}
+                sliderToolbar={sliderToolbar}
+                onSliderSettings={() => {
+                    const comp = editorRef.current?.getSelected();
+                    if (!comp) return;
+
+                    const { slides, settings } = getSliderDataFromComponent(comp);
+
+                    comp.set('slides', slides);
+                    comp.set('settings', settings);
+
+                    setSliderComponent(comp);
+                    setSliderInitialSlides(slides);
+                    setSliderInitialSettings(settings);
+                    setSliderModalOpen(true);
+                }}
             />
 
             <div className="editor-body">
@@ -88,6 +141,8 @@ const Editor = () => {
             <SliderSettingsModal
                 isOpen={sliderModalOpen}
                 onClose={() => setSliderModalOpen(false)}
+                initialSlides={sliderInitialSlides}
+                initialSettings={sliderInitialSettings}
                 onConfirm={({ slideCount, settings }) => {
                     if (!sliderComponent) return;
 

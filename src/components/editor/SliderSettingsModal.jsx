@@ -1,12 +1,22 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-const SliderSettingsModal = ({ isOpen, onClose, onConfirm }) => {
+const SliderSettingsModal = ({ isOpen, onClose, onConfirm, initialSlides, initialSettings }) => {
     const [slideCount, setSlideCount] = useState(3);
     const [showArrows, setShowArrows] = useState(true);
     const [showPagination, setShowPagination] = useState(true);
     const [paginationType, setPaginationType] = useState('dots');
     const [autoplay, setAutoplay] = useState(true);
     const [autoplaySpeed, setAutoplaySpeed] = useState(3000);
+
+    useEffect(() => {
+        if (!isOpen) return;
+        setSlideCount(initialSlides?.length ?? 3);
+        setShowArrows(initialSettings?.showArrows ?? true);
+        setShowPagination(initialSettings?.showPagination ?? true);
+        setPaginationType(initialSettings?.paginationType ?? 'dots');
+        setAutoplay(initialSettings?.autoplay ?? true);
+        setAutoplaySpeed(initialSettings?.autoplaySpeed ?? 3000);
+    }, [isOpen, initialSlides, initialSettings]);
 
     if (!isOpen) return null;
 

@@ -18,7 +18,7 @@ const DEVICE_MAP = {
     mobile: 'Mobile',
 };
 
-const TopBar = ({ editorRef, device, setDevice, onSave }) => {
+const TopBar = ({ editorRef, device, setDevice, onSave, sliderToolbar, onSliderSettings }) => {
     const [modalOpen, setModalOpen] = useState(false);
     const [modalContent, setModalContent] = useState({});
     const navigate = useNavigate();
@@ -85,6 +85,8 @@ const TopBar = ({ editorRef, device, setDevice, onSave }) => {
                 <button className="topbar-btn" onClick={onSave}>💾 Save</button>
 
                 <div className="topbar-divider" />
+                {sliderToolbar && <button className="topbar-btn" onClick={onSliderSettings}>⚙ Settings</button>}
+
                 <div className="topbar-spacer" />
 
                 <div className="topbar-device-group">
