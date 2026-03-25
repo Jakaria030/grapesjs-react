@@ -45,7 +45,11 @@ export const initEditor = ({ gjsData, onAssetOpen } = {}) => {
 
     // Register custom component types and listeners
     registerHeading(editor);
-    registerListeners(editor, {onAssetOpen});
+    registerListeners(editor, { onAssetOpen });
+
+    editor.DomComponents.addType('image-slider', {
+        model: { defaults: { tagName: 'div' } }
+    });
 
     return editor;
 };
