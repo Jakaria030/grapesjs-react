@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import TopBar from '../components/editor/TopBar';
 import LeftSidebar from '../components/editor/LeftSidebar';
 import RightSidebar from '../components/editor/RightSidebar';
-import { initEditor } from '../lib/editor/initEditor';
+import { buildSliderHTML, initEditor, } from '../lib/editor/initEditor';
 import { useProject } from '../hooks/useProject';
 import Loading from '../components/ui/Loading';
 import AssetManagerModal from '../components/dashboard/AssetManagerModal';
@@ -17,7 +17,7 @@ const Editor = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [assetProps, setAssetProps] = useState(null);
     const [sliderModalOpen, setSliderModalOpen] = useState(false);
-
+    const [sliderComponent, setSliderComponent] = useState(null);
 
     useEffect(() => {
         if (!project) return;
@@ -35,6 +35,7 @@ const Editor = () => {
         editor.on("block:drag:stop", (component) => {
             if (!component) return;
             if (component.get('type') === 'image-slider') {
+                setSliderComponent(component);
                 setSliderModalOpen(true);
             }
         });
@@ -87,7 +88,17 @@ const Editor = () => {
             <SliderSettingsModal
                 isOpen={sliderModalOpen}
                 onClose={() => setSliderModalOpen(false)}
-                onConfirm={(data) => console.log(data)}
+                onConfirm={({ slideCount, settings }) => {
+                    if (!sliderComponent) return;
+
+                    const slides = Array.from({ length: slideCount }, (_, i) => ({
+                        url: `https://placehold.co/800x400/ddd/000?text=Slide+${i + 1}`,
+                        caption: `Slide ${i + 1}`,
+                    }));
+
+                    const html = buildSliderHTML({ slides, settings });
+                    sliderComponent.components(html);
+                }}
             />
 
         </div>
