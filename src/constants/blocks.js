@@ -240,4 +240,10 @@ export const BLOCKS = [
 })();
 </script>`,
     },
+    {
+        id: 'image-slider',
+        label: 'Image Slider',
+        media: `<img src='/assets/sliders-h-solid.png' draggable='false'/>`,
+        content: { type: 'image-slider' },
+    }
 ];
