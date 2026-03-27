@@ -13,7 +13,7 @@ export function buildSliderHTML({ slides, settings }) {
             src="${slide.url}"
             data-slide-index="${i}"
             class="sld-img"
-            style="width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;"
+            style="width:100%;height:100%;object-fit:cover;display:block;pointer-events:all; cursor:pointer;"
         />
     </div>
     `).join('');

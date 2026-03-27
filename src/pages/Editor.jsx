@@ -55,6 +55,36 @@ const Editor = () => {
             setSliderToolbar(false);
         });
 
+        editor.on('load', () => {
+            const iframe = editor.Canvas.getFrameEl();
+            const doc = iframe.contentDocument;
+
+            doc.addEventListener("contextmenu", (e) => {
+                const sliderRoot = e.target.closest(".sld-root");
+                if (!sliderRoot) return;
+
+                e.preventDefault()
+
+                function findeComponent(components, el) {
+                    for (let i = 0; i < components.length; i++) {
+                        const com = components.at(i);
+                        if (com.getEl() === el) return com;
+
+                        const found = findeComponent(com.components(), el);
+                        if (found) return found;
+                    }
+                    return null;
+                }
+
+
+                const component = findeComponent(editor.DomComponents.getComponents(), sliderRoot);
+
+                if (component) {
+                    editor.select(component);
+                }
+            })
+        });
+
         editorRef.current = editor;
 
         return () => {
