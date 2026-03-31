@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
     BACKFACE_OPTIONS,
     BG_ATTACHMENT_OPTIONS,
@@ -36,6 +36,7 @@ import {
     WILL_CHANGE_OPTIONS,
     WORD_BREAK_OPTIONS
 } from '../../constants/styleProps';
+
 
 
 // ── Sub Components ───────────────────────────────────────
@@ -193,12 +194,71 @@ const GridToggle = ({ styles, onChange }) => {
     );
 };
 
+const LinkSection = ({ selectedEl, editorRef }) => {
+    const [pages, setPages] = useState([]);
+    const [href, setHref] = useState('');
+
+    useEffect(() => {
+        if (!selectedEl) return;
+
+        // get current href
+        const currentHref = selectedEl.getAttributes()?.href || '';
+        setHref(currentHref);
+
+        // get all pages
+        const editor = editorRef?.current;
+        if (!editor) return;
+        const pm = editor.Pages;
+        setPages(pm.getAll().map(p => ({
+            name: p.get('name') || 'Untitled',
+            slug: p.get('slug') || '',
+        })));
+    }, [selectedEl]);
+
+    const handleChange = (val) => {
+        setHref(val);
+        selectedEl.addAttributes({ href: val });
+    };
+
+    return (
+        <Section title="Link" defaultOpen={true}>
+            <div className="sp-row">
+                <label className="sp-label">Page</label>
+                <select
+                    className="sp-select"
+                    value={href}
+                    onChange={e => handleChange(e.target.value)}
+                >
+                    <option value="#">— Select Page —</option>
+                    {pages.map(p => (
+                        <option key={p.slug} value={`/${p.slug}`}>
+                            {p.name} (/{p.slug})
+                        </option>
+                    ))}
+                </select>
+            </div>
+            <div className="sp-row">
+                <label className="sp-label">Custom URL</label>
+                <input
+                    className="sp-input sp-input-full"
+                    type="text"
+                    value={href}
+                    placeholder="https:// or /slug"
+                    onChange={e => handleChange(e.target.value)}
+                />
+            </div>
+        </Section>
+    );
+};
+
 // ── Main Style Panel ──────────────────────────────────────
 
-const StylePanel = ({ selectedEl, styles, onChange }) => {
+const StylePanel = ({ selectedEl, styles, onChange, editorRef }) => {
     if (!selectedEl) return (
         <p className="sp-placeholder">Click an element on the canvas to style it</p>
     );
+
+    const isLink = selectedEl.get('tagName') === 'a';
 
     return (
         <div className="sp-panel">
@@ -206,8 +266,13 @@ const StylePanel = ({ selectedEl, styles, onChange }) => {
                 &lt;{selectedEl.get('tagName') || 'element'}&gt;
             </div>
 
+            {/*  show link section only for <a> tags */}
+            {isLink && (
+                <LinkSection selectedEl={selectedEl} editorRef={editorRef} />
+            )}
+
             {/* ── Dimension ── */}
-            <Section title="Dimension" defaultOpen={true}>
+            <Section title="Dimension" defaultOpen={false}>
                 {DIMENSION_PROPS.map((p) => (
                     <PixelInput key={p.property} {...p} unit="px" styles={styles} onChange={onChange} />
                 ))}

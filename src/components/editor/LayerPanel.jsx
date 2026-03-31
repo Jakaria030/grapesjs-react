@@ -121,6 +121,7 @@ const LayerPanel = ({ editorRef }) => {
     const rebuildLayers = () => {
         if (!editorRef?.current) return;
         const root = editorRef.current.DomComponents.getWrapper();
+        if (!root) return;
         const flat = flattenLayers(root.get('components'), 0, [], openMap);
         setLayers(flat);
     };

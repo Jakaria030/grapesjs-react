@@ -23,6 +23,8 @@ const TopBar = ({ editorRef, device, setDevice, onSave, sliderToolbar, onSliderS
     const [modalContent, setModalContent] = useState({});
     const navigate = useNavigate();
 
+
+
     const getEditor = () => editorRef.current;
 
     const handleUndo = () => getEditor()?.UndoManager.undo();
@@ -31,6 +33,7 @@ const TopBar = ({ editorRef, device, setDevice, onSave, sliderToolbar, onSliderS
     const handleReset = () => {
         const editor = getEditor();
         if (!editor) return;
+
         editor.DomComponents.clear();
         editor.UndoManager.clear();
     };
@@ -53,10 +56,38 @@ const TopBar = ({ editorRef, device, setDevice, onSave, sliderToolbar, onSliderS
         const editor = getEditor();
         if (!editor) return;
 
-        const fullHtml = buildFullHtml({ ...getHtmlCssJs(editor), title: 'Preview' });
-        const newTab = window.open('', '_blank');
-        newTab.document.write(fullHtml);
-        newTab.document.close();
+        const pm = editor.Pages;
+        const allPages = pm.getAll();
+        const currentPage = pm.getSelected();
+        const currentPageId = currentPage?.getId();
+        const currentSlug = currentPage?.get('slug') || 'index';
+
+        // build HTML for ALL pages
+        const pagesData = allPages.map(page => {
+            pm.select(page.getId());
+            const { html, css, js } = getHtmlCssJs(editor);
+            const slug = page.get('slug') || 'index';
+
+            const rewrittenHtml = html.replace(
+                /href=["']\/([^"']+)["']/g,
+                (match, path) => {
+                    const matchedPage = allPages.find(p => p.get('slug') === path);
+                    if (matchedPage) return `href="/preview/${path}"`;
+                    return match;
+                }
+            );
+
+            return { slug, name: page.get('name'), html: buildFullHtml({ html: rewrittenHtml, css, js, title: page.get('name') }) };
+        });
+
+        // restore original page
+        pm.select(currentPageId);
+
+        // store in sessionStorage so preview route can read it
+        sessionStorage.setItem('preview_pages', JSON.stringify(pagesData));
+
+        // open preview
+        window.open(`/preview/${currentSlug}`, '_blank');
     };
 
     const handleCodePreview = () => {
