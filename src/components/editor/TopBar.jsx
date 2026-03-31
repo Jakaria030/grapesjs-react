@@ -62,34 +62,56 @@ const TopBar = ({ editorRef, device, setDevice, onSave, sliderToolbar, onSliderS
         const currentPageId = currentPage?.getId();
         const currentSlug = currentPage?.get('slug') || 'index';
 
-        // build HTML for ALL pages
         const pagesData = allPages.map(page => {
             pm.select(page.getId());
             const { html, css, js } = getHtmlCssJs(editor);
             const slug = page.get('slug') || 'index';
 
+            // step 1 — rewrite /slug hrefs
             const rewrittenHtml = html.replace(
-                /href=["']\/([^"']+)["']/g,
+                /href=["']([^"']+)["']/g,
                 (match, path) => {
-                    const matchedPage = allPages.find(p => p.get('slug') === path);
-                    if (matchedPage) return `href="/preview/${path}"`;
+                    if (path.startsWith('http')) return match;
+                    if (path.startsWith('/preview/')) return match;
+                    if (path.startsWith('/')) {
+                        const slugPath = path.slice(1);
+                        const matchedPage = allPages.find(p => p.get('slug') === slugPath);
+                        if (matchedPage) return `href="/preview/${slugPath}"`;
+                    }
                     return match;
                 }
             );
 
-            return { slug, name: page.get('name'), html: buildFullHtml({ html: rewrittenHtml, css, js, title: page.get('name') }) };
+            // step 2 — match href="#" links by text content
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(rewrittenHtml, 'text/html');
+
+            doc.querySelectorAll('a[href="#"]').forEach(link => {
+                const text = link.textContent.trim().toLowerCase();
+                const matchedPage = allPages.find(p =>
+                    p.get('name')?.toLowerCase() === text ||
+                    p.get('slug')?.toLowerCase() === text
+                );
+                if (matchedPage) {
+                    link.setAttribute('href', `/preview/${matchedPage.get('slug')}`);
+                }
+            });
+
+            const finalHtml = doc.documentElement.outerHTML;
+
+            return {
+                slug,
+                name: page.get('name'),
+                html: buildFullHtml({ html: finalHtml, css, js, title: page.get('name') }),
+            };
         });
 
         // restore original page
         pm.select(currentPageId);
 
-        // store in sessionStorage so preview route can read it
         sessionStorage.setItem('preview_pages', JSON.stringify(pagesData));
-
-        // open preview
         window.open(`/preview/${currentSlug}`, '_blank');
     };
-
     const handleCodePreview = () => {
         const editor = getEditor();
         if (!editor) return;

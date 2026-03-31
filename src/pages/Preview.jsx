@@ -37,7 +37,7 @@ const Preview = () => {
                     window.parent.postMessage({type: 'preview-navigate', slug: slug}, '*');
                 }
             });
-        </script>
+        <\/script>
         `;
 
         const htmlWithScript = page.html.replace('</body>', interceptScript + '</body>');
