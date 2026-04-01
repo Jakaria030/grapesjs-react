@@ -1,14 +1,16 @@
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import projectImage from '/assets/project-image.png';
 import CreateProjectModal from '../components/dashboard/CreateProjectModal';
 import Loading from '../components/ui/Loading';
 import { useProjects } from '../hooks/useProject';
 import { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 
 const Dashboard = () => {
     const { projects, loading, createProject, deleteProject } = useProjects();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const navigate = useNavigate();
+    const { isAuthenticated, logout } = useAuth();
 
     const handleSubmit = async (data) => {
         const newProject = await createProject(data);
@@ -16,15 +18,27 @@ const Dashboard = () => {
         navigate(`/editor/${newProject.id}`);
     };
 
+    if (!isAuthenticated) {
+        return <Navigate to="/" />;
+    }
+
     if (loading) return <Loading />;
 
     return (
         <>
             <header className="dashboard-header">
                 <h1 className="dashboard-title">My Projects</h1>
-                <button className="new-project-btn" onClick={() => setIsModalOpen(true)}>
-                    + New Project
-                </button>
+                <div style={{ display: "flex", gap: "10px" }}>
+                    <button className="new-project-btn" onClick={() => setIsModalOpen(true)}>
+                        + New Project
+                    </button>
+                    <button
+                        className="btn"
+                        onClick={logout}
+                    >
+                        Logout
+                    </button>
+                </div>
             </header>
 
             <main className="dashboard-main">
