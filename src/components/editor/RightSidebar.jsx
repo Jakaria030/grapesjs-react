@@ -10,7 +10,7 @@ const RightSidebar = ({ editorRef }) => {
                 className="sidebar-toggle"
                 onClick={() => setCollapsed(!collapsed)}
             >
-                {collapsed ? '→' : '←'}
+                {collapsed ? '←' : '→'}
             </button>
 
             {!collapsed && (

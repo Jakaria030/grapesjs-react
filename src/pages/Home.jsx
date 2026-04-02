@@ -5,7 +5,7 @@ import { useAuth } from "../context/AuthContext";
 const Home = () => {
     const [showRegister, setShowRegister] = useState(false);
     const [showLogin, setShowLogin] = useState(false);
-    const { login, register } = useAuth();
+    const { login, register, isAuthenticated } = useAuth();
 
     const [form, setForm] = useState({
         name: "",
@@ -80,7 +80,10 @@ const Home = () => {
                     <p>Create and launch faster.</p>
                     <button
                         className="home-hero-btn"
-                        onClick={() => setShowRegister(true)}
+                        onClick={() => {
+                            if (isAuthenticated) navigate("/dashboard");
+                            else setShowRegister(true);
+                        }}
                     >
                         Get Started
                     </button>

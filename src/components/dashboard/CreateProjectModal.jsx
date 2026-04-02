@@ -7,6 +7,10 @@ const CreateProjectModal = ({ isOpen, onClose, onSubmit }) => {
     if (!isOpen) return null;
 
     const handleSubmit = () => {
+        if(!name) {
+            alert("Project name is required!");
+            return;
+        };
         onSubmit({ name, description });
         setName('');
         setDescription('');

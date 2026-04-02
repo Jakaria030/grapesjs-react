@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-const API = 'http://localhost:3001/projects';
+const API = 'http://localhost:3000/api/projects';
 
 export const useProject = (id) => {
     const [project, setProject] = useState(null);
@@ -12,8 +12,13 @@ export const useProject = (id) => {
                 setLoading(false);
                 return;
             }
-            
-            const res = await fetch(`${API}/${id}`);
+
+            const res = await fetch(`${API}/${id}`, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${localStorage.getItem('token')}`,
+                },
+            });
             const data = await res.json();
 
             setProject(data);
@@ -26,7 +31,10 @@ export const useProject = (id) => {
     const saveProject = async (gjsData) => {
         const res = await fetch(`${API}/${id}`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                "Authorization": `Bearer ${localStorage.getItem('token')}`
+            },
             body: JSON.stringify({ ...project, gjsData }),
         });
         return res.ok;
@@ -41,7 +49,12 @@ export const useProjects = () => {
 
     useEffect(() => {
         const fetchProjects = async () => {
-            const res = await fetch(API);
+            const res = await fetch(API, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    "Authorization": `Bearer ${localStorage.getItem('token')}`
+                }
+            });
             const data = await res.json();
 
             setProjects(data);
@@ -54,15 +67,24 @@ export const useProjects = () => {
     const createProject = async (data) => {
         const res = await fetch(API, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                "Authorization": `Bearer ${localStorage.getItem('token')}`
+            },
             body: JSON.stringify(data),
         });
         return res.json();
     };
 
     const deleteProject = async (projectId) => {
-        await fetch(`${API}/${projectId}`, { method: 'DELETE' });
-        setProjects((prev) => prev.filter((p) => p.id !== projectId));
+        await fetch(`${API}/${projectId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                "Authorization": `Bearer ${localStorage.getItem('token')}`
+            },
+        });
+        setProjects((prev) => prev.filter((p) => p._id !== projectId));
     };
 
     return { projects, loading, createProject, deleteProject };

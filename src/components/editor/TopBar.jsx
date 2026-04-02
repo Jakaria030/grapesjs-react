@@ -134,7 +134,7 @@ const TopBar = ({ editorRef, device, setDevice, onSave, sliderToolbar, onSliderS
                 <span className="topbar-logo">My Editor</span>
                 <div className="topbar-divider" />
 
-                <button className="topbar-btn" onClick={() => navigate('/')}>↩ Back</button>
+                <button className="topbar-btn" onClick={() => navigate('/dashboard')}>↩ Back</button>
                 <button className="topbar-btn" onClick={onSave}>💾 Save</button>
 
                 <div className="topbar-divider" />

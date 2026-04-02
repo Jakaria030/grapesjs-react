@@ -29,6 +29,9 @@ const AssetManagerModal = ({ isOpen, onClose, assetProps, projectId }) => {
         try {
             const res = await fetch(`${BASE_URL}/api/media/${endpoint}`, {
                 method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                },
                 body: formData,
             });
             const data = await res.json();
@@ -42,7 +45,7 @@ const AssetManagerModal = ({ isOpen, onClose, assetProps, projectId }) => {
 
                 const res = await createAsset(asset_data);
 
-                if (res.id) {
+                if (res._id) {
                     setAssets((prev) => [...prev, res]);
                     setStatus({ type: "success", message: "Uploaded successfully!" });
                 }
@@ -67,15 +70,18 @@ const AssetManagerModal = ({ isOpen, onClose, assetProps, projectId }) => {
         try {
             const res = await fetch(`${BASE_URL}/api/media`, {
                 method: "DELETE",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                },
                 body: JSON.stringify({ url: asset.url }),
             });
             const data = await res.json();
 
             if (data.ok) {
-                await deleteAsset(asset.id);
+                await deleteAsset(asset._id);
 
-                setAssets(assets.filter((a) => a.id !== asset.id));
+                setAssets(assets.filter((a) => a._id !== asset._id));
                 setStatus({ type: "success", message: "Asset deleted!." });
             }
 
@@ -87,8 +93,8 @@ const AssetManagerModal = ({ isOpen, onClose, assetProps, projectId }) => {
 
     const handleSelect = (asset) => {
         const fullUrl = `${BASE_URL}/${asset.url}`;
-        if(assetProps?.select){
-            assetProps.select({src: fullUrl}, true);
+        if (assetProps?.select) {
+            assetProps.select({ src: fullUrl }, true);
         }
 
         onClose?.();

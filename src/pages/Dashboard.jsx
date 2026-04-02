@@ -7,15 +7,15 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 
 const Dashboard = () => {
+    const {isAuthenticated, logout } = useAuth();
     const { projects, loading, createProject, deleteProject } = useProjects();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const navigate = useNavigate();
-    const { isAuthenticated, logout } = useAuth();
 
     const handleSubmit = async (data) => {
         const newProject = await createProject(data);
         setIsModalOpen(false);
-        navigate(`/editor/${newProject.id}`);
+        navigate(`/editor/${newProject._id}`);
     };
 
     if (!isAuthenticated) {
@@ -49,7 +49,7 @@ const Dashboard = () => {
 
                     <div className="projects-grid">
                         {projects.map((project) => (
-                            <div className="project-card" key={project.id}>
+                            <div className="project-card" key={project._id}>
                                 <img
                                     className="project-image"
                                     src={projectImage}
@@ -61,13 +61,13 @@ const Dashboard = () => {
                                     <div className="project-actions">
                                         <button
                                             className="edit-btn"
-                                            onClick={() => navigate(`/editor/${project.id}`)}
+                                            onClick={() => navigate(`/editor/${project._id}`)}
                                         >
                                             Edit
                                         </button>
                                         <button
                                             className="delete-btn"
-                                            onClick={() => deleteProject(project.id)}
+                                            onClick={() => deleteProject(project._id)}
                                         >
                                             Delete
                                         </button>

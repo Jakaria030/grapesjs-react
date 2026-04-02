@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const API = 'http://localhost:3001/files';
+const API = 'http://localhost:3000/api/files';
 
 export const useAssets = (projectId) => {
     const [assets, setAssets] = useState([]);
@@ -14,12 +14,15 @@ export const useAssets = (projectId) => {
                 return;
             }
 
-            const res = await fetch(API);
+            const res = await fetch(`${API}/${projectId}`, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                }
+            });
             const data = await res.json();
 
-            const currentProjectImages = data.filter((d) => d.projectId === projectId);
-
-            setAssets(currentProjectImages);
+            setAssets(data);
             setLoading(false);
         };
 
@@ -29,15 +32,24 @@ export const useAssets = (projectId) => {
     const createAsset = async (data) => {
         const res = await fetch(API, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                "Authorization": `Bearer ${localStorage.getItem("token")}`,
+            },
             body: JSON.stringify(data),
         });
         return res.json();
     };
 
     const deleteAsset = async (assetId) => {
-        await fetch(`${API}/${assetId}`, { method: 'DELETE' });
-        setAssets((prev) => prev.filter((p) => p.id !== assetId));
+        await fetch(`${API}/${assetId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                "Authorization": `Bearer ${localStorage.getItem("token")}`,
+            }
+        });
+        setAssets((prev) => prev.filter((p) => p._id !== assetId));
     };
 
     return { assets, setAssets, loading, createAsset, deleteAsset };

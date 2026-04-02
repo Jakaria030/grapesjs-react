@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }) => {
 
       if (!res.ok) throw new Error();
 
-      setUser(data);
+      setUser(data.user);
     } catch (err) {
       // invalid token → remove it
       localStorage.removeItem("token");
