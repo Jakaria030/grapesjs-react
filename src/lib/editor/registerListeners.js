@@ -1,4 +1,5 @@
-const Listener = (editor) => {
+
+export const registerListeners = (editor, { onAssetOpen }) => {
     editor.on('component:selected', (component) => {
         const el = component.getEl();
 
@@ -28,8 +29,11 @@ const Listener = (editor) => {
         }
     });
 
+    // Asset Manager — open custom modal
+    editor.on('asset:custom', (props) => {
 
+        if (props.open) {
+            onAssetOpen?.(props);
+        }
+    });
 };
-
-
-export default Listener;

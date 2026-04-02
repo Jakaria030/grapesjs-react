@@ -1,15 +1,19 @@
-import { useState } from "react";
+import { useState } from 'react';
 
 const CreateProjectModal = ({ isOpen, onClose, onSubmit }) => {
-    const [name, setName] = useState("");
-    const [description, setDescription] = useState("");
+    const [name, setName] = useState('');
+    const [description, setDescription] = useState('');
 
     if (!isOpen) return null;
 
     const handleSubmit = () => {
+        if(!name) {
+            alert("Project name is required!");
+            return;
+        };
         onSubmit({ name, description });
-        setName("");
-        setDescription("");
+        setName('');
+        setDescription('');
     };
 
     return (
@@ -32,13 +36,8 @@ const CreateProjectModal = ({ isOpen, onClose, onSubmit }) => {
                 />
 
                 <div className="modal-buttons">
-                    <button className="cancel-btn" onClick={onClose}>
-                        Cancel
-                    </button>
-
-                    <button className="submit-btn" onClick={handleSubmit}>
-                        Submit
-                    </button>
+                    <button className="cancel-btn" onClick={onClose}>Cancel</button>
+                    <button className="submit-btn" onClick={handleSubmit}>Submit</button>
                 </div>
             </div>
         </div>

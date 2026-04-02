@@ -1,53 +1,55 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
-// ── tag config ──────────────────────────────────────────
+// ── Tag config ────────────────────────────────────────────
+
 const TAG_CONFIG = {
-    body:    { color: '#5b6cff', icon: '■' },
-    div:     { color: '#5b6cff', icon: '■' },
+    body: { color: '#5b6cff', icon: '■' },
+    div: { color: '#5b6cff', icon: '■' },
     section: { color: '#ff5b8d', icon: '■' },
     article: { color: '#ff5b8d', icon: '■' },
-    main:    { color: '#ff5b8d', icon: '■' },
-    aside:   { color: '#ff5b8d', icon: '■' },
-    header:  { color: '#ff5b8d', icon: '■' },
-    footer:  { color: '#ff5b8d', icon: '■' },
-    nav:     { color: '#ff5b8d', icon: '■' },
-    h1:      { color: '#ffd15b', icon: '■' },
-    h2:      { color: '#ffd15b', icon: '■' },
-    h3:      { color: '#ffd15b', icon: '■' },
-    h4:      { color: '#ffd15b', icon: '■' },
-    h5:      { color: '#ffd15b', icon: '■' },
-    h6:      { color: '#ffd15b', icon: '■' },
-    p:       { color: '#3ddc84', icon: '■' },
-    span:    { color: '#3ddc84', icon: '■' },
-    a:       { color: '#3ddc84', icon: '■' },
-    button:  { color: '#5b6cff', icon: '■' },
-    input:   { color: '#5b6cff', icon: '■' },
-    form:    { color: '#5b6cff', icon: '■' },
-    img:     { color: '#ff9f5b', icon: '■' },
-    video:   { color: '#ff9f5b', icon: '■' },
-    audio:   { color: '#ff9f5b', icon: '■' },
-    iframe:  { color: '#ff9f5b', icon: '■' },
-    ul:      { color: '#3ddc84', icon: '■' },
-    ol:      { color: '#3ddc84', icon: '■' },
-    li:      { color: '#3ddc84', icon: '■' },
-    table:   { color: '#5b6cff', icon: '■' },
-    tr:      { color: '#5b6cff', icon: '■' },
-    td:      { color: '#5b6cff', icon: '■' },
-    th:      { color: '#5b6cff', icon: '■' },
+    main: { color: '#ff5b8d', icon: '■' },
+    aside: { color: '#ff5b8d', icon: '■' },
+    header: { color: '#ff5b8d', icon: '■' },
+    footer: { color: '#ff5b8d', icon: '■' },
+    nav: { color: '#ff5b8d', icon: '■' },
+    h1: { color: '#ffd15b', icon: '■' },
+    h2: { color: '#ffd15b', icon: '■' },
+    h3: { color: '#ffd15b', icon: '■' },
+    h4: { color: '#ffd15b', icon: '■' },
+    h5: { color: '#ffd15b', icon: '■' },
+    h6: { color: '#ffd15b', icon: '■' },
+    p: { color: '#3ddc84', icon: '■' },
+    span: { color: '#3ddc84', icon: '■' },
+    a: { color: '#3ddc84', icon: '■' },
+    button: { color: '#5b6cff', icon: '■' },
+    input: { color: '#5b6cff', icon: '■' },
+    form: { color: '#5b6cff', icon: '■' },
+    img: { color: '#ff9f5b', icon: '■' },
+    video: { color: '#ff9f5b', icon: '■' },
+    audio: { color: '#ff9f5b', icon: '■' },
+    iframe: { color: '#ff9f5b', icon: '■' },
+    ul: { color: '#3ddc84', icon: '■' },
+    ol: { color: '#3ddc84', icon: '■' },
+    li: { color: '#3ddc84', icon: '■' },
+    table: { color: '#5b6cff', icon: '■' },
+    tr: { color: '#5b6cff', icon: '■' },
+    td: { color: '#5b6cff', icon: '■' },
+    th: { color: '#5b6cff', icon: '■' },
 };
 
 const getConfig = (tagName) =>
     TAG_CONFIG[tagName?.toLowerCase()] || { color: '#aaa', icon: '◻' };
 
-// ── flatten tree ─────────────────────────────────────────
+// ── Flatten tree ──────────────────────────────────────────
+
 const flattenLayers = (components, depth = 0, result = [], openMap = {}) => {
     if (!components?.models) return result;
 
     components.models.forEach((comp) => {
-        if(comp.get('tagName') === 'script') return;
-        
-        const id    = comp.cid;
-        const tag   = comp.get('tagName') || comp.get('type') || 'div';
+        if (comp.get('tagName') === 'script') return;
+
+        const id = comp.cid;
+        const tag = comp.get('tagName') || comp.get('type') || 'div';
         const label = comp.get('name') || tag;
         const children = comp.get('components');
         const hasChildren = children?.models?.length > 0;
@@ -62,14 +64,15 @@ const flattenLayers = (components, depth = 0, result = [], openMap = {}) => {
     return result;
 };
 
-// ── LayerRow ─────────────────────────────────────────────
+// ── LayerRow ──────────────────────────────────────────────
+
 const LayerRow = ({ item, editor, openMap, onToggleOpen }) => {
     const { id, label, tag, depth, comp, hasChildren } = item;
     const { color, icon } = getConfig(tag);
 
     const isSelected = editor.getSelected()?.cid === id;
-    const isVisible  = comp.get('visible') !== false;
-    const isOpen     = openMap[id] !== false;
+    const isVisible = comp.get('visible') !== false;
+    const isOpen = openMap[id] !== false;
 
     const toggleVisible = (e) => {
         e.stopPropagation();
@@ -84,7 +87,6 @@ const LayerRow = ({ item, editor, openMap, onToggleOpen }) => {
             style={{ paddingLeft: 8 + depth * 14 }}
             onClick={() => editor.select(comp)}
         >
-            {/* tree line + arrow */}
             <span
                 className="lyr-arrow"
                 style={{ opacity: hasChildren ? 1 : 0, pointerEvents: hasChildren ? 'auto' : 'none' }}
@@ -93,16 +95,10 @@ const LayerRow = ({ item, editor, openMap, onToggleOpen }) => {
                 {isOpen ? '▾' : '▸'}
             </span>
 
-            {/* icon */}
             <span className="lyr-icon" style={{ color }}>{icon}</span>
-
-            {/* label */}
             <span className="lyr-label">{label}</span>
-
-            {/* tag badge */}
             <span className="lyr-tag">{tag}</span>
 
-            {/* actions */}
             <div className="lyr-actions">
                 <button
                     className={`lyr-btn ${!isVisible ? 'lyr-btn-off' : ''}`}
@@ -117,16 +113,16 @@ const LayerRow = ({ item, editor, openMap, onToggleOpen }) => {
 };
 
 // ── Main Layer Panel ──────────────────────────────────────
+
 const LayerPanel = ({ editorRef }) => {
-    const [layers,  setLayers]  = useState([]);
+    const [layers, setLayers] = useState([]);
     const [openMap, setOpenMap] = useState({});
 
     const rebuildLayers = () => {
         if (!editorRef?.current) return;
-
         const root = editorRef.current.DomComponents.getWrapper();
+        if (!root) return;
         const flat = flattenLayers(root.get('components'), 0, [], openMap);
-
         setLayers(flat);
     };
 
@@ -140,21 +136,16 @@ const LayerPanel = ({ editorRef }) => {
             clearInterval(interval);
 
             const editor = editorRef.current;
-
-            editor.on('layer:root',          rebuildLayers);
-            editor.on('layer:component',     rebuildLayers);
-            editor.on('component:add',       rebuildLayers);
-            editor.on('component:remove',    rebuildLayers);
-
+            editor.on('component:add', rebuildLayers);
+            editor.on('component:remove', rebuildLayers);
+            editor.on('layer:root', rebuildLayers);
+            editor.on('layer:component', rebuildLayers);
         }, 100);
 
         return () => clearInterval(interval);
-    }, []);
+    }, [editorRef.current]);
 
-    // rebuild when openMap changes
     useEffect(() => { rebuildLayers(); }, [openMap]);
-
-
 
     return (
         <div className="lyr-panel">
@@ -170,7 +161,6 @@ const LayerPanel = ({ editorRef }) => {
                         onToggleOpen={toggleOpen}
                     />
                 ))
-
             )}
         </div>
     );

@@ -1,4 +1,5 @@
-const Heading = (editor) => {
+
+export const registerHeading = (editor) => {
     editor.DomComponents.addType('heading', {
         extend: 'text',
 
@@ -29,5 +30,3 @@ const Heading = (editor) => {
         },
     });
 };
-
-export default Heading;

@@ -1,4 +1,3 @@
-// blockStyles.js — split each block CSS separately
 export const BLOCK_STYLES = {
     hdr: `
         .hdr { font-family: 'Syne', sans-serif; background: #0a0a0f; border-bottom: 1px solid rgba(255,255,255,0.08); position: sticky; top: 0; z-index: 1000; width: 100%; box-sizing: border-box; }
@@ -20,7 +19,6 @@ export const BLOCK_STYLES = {
         .hdr-mobile-btn { margin-top: 12px; text-align: center; border-bottom: none !important; border-radius: 8px; }
         @media (max-width: 768px) { .hdr-nav-wrap { display: none; } .hdr-hamburger { display: flex; } .hdr-btn:not(.hdr-mobile-btn) { display: none; } }
     `,
-
     hero: `
         .hero { font-family: 'Syne', sans-serif; background: #0a0a0f; min-height: 100vh; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; box-sizing: border-box; padding: 80px 32px; }
         .hero-bg-orb { position: absolute; border-radius: 50%; filter: blur(80px); pointer-events: none; }
@@ -45,7 +43,6 @@ export const BLOCK_STYLES = {
         .hero-stat-divider { width: 1px; height: 40px; background: rgba(255,255,255,0.1); }
         @media (max-width: 480px) { .hero-stats { gap: 20px; } .hero-stat-num { font-size: 22px; } }
     `,
-
     ftr: `
         .ftr { font-family: 'Syne', sans-serif; background: #0a0a0f; border-top: 1px solid rgba(255,255,255,0.08); width: 100%; box-sizing: border-box; }
         .ftr-wrap { max-width: 1200px; margin: 0 auto; padding: 64px 32px 32px; }
@@ -68,7 +65,6 @@ export const BLOCK_STYLES = {
         .ftr-made { font-family: 'DM Sans', sans-serif; color: rgba(255,255,255,0.2); font-size: 13px; }
         @media (max-width: 768px) { .ftr-top { flex-direction: column; } .ftr-links { gap: 32px; } .ftr-brand { max-width: 100%; } }
     `,
-
     cntd: `
         .cntd { font-family: 'Syne', sans-serif; background: #0a0a0f; padding: 64px 32px; display: flex; flex-direction: column; align-items: center; gap: 20px; box-sizing: border-box; }
         .cntd-label { font-size: 13px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: #a5b4fc; margin: 0; }
