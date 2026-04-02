@@ -42,7 +42,12 @@ const PagesPanel = ({ editorRef, onEdit }) => {
         if (!editor) return;
 
         const pm = editor.Pages;
-        if (pm.getAll()[0].get('type') === 'main') {
+
+        const pageToDeleted = pm.get(pageId);
+
+        if(!pageToDeleted) return;
+
+        if (pageToDeleted.get('type') === 'main') {
             alert('Cannot delete the Main page.');
             return;
         }
