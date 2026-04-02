@@ -181,6 +181,35 @@ export const initEditor = ({ gjsData, onAssetOpen } = {}) => {
     registerHeading(editor);
     registerListeners(editor, { onAssetOpen });
 
+    // register duplicate command
+    editor.Commands.add('duplicate-component', {
+        run(editor) {
+            const selected = editor.getSelected();
+            if (!selected) return;
+
+            const parent = selected.parent();
+            if (!parent) return;
+
+            const index = selected.index();
+            const cloned = selected.clone();
+
+            parent.components().add(cloned, { at: index + 1 });
+            editor.select(cloned);
+        }
+    });
+
+    editor.on('load', () => {
+        // prevent browser default ctrl+d
+        window.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'd') {
+                e.preventDefault();
+            }
+        });
+
+    });
+
+    editor.Keymaps.add('duplicate', 'ctrl+d', 'duplicate-component');
+
     if (gjsData) {
         editor.loadProjectData(gjsData);
     }
