@@ -133,14 +133,6 @@ const TopBar = ({ editorRef, device, setDevice, onSave, sliderToolbar, onSliderS
 
             doc.querySelectorAll('a[href]').forEach(link => {
                 const href = link.getAttribute('href');
-                if (!href || href.startsWith('http')) return;
-
-                if (href.startsWith('/preview/')) {
-                    const linkedSlug = href.replace('/preview/', '');
-                    link.setAttribute('href', `./${linkedSlug}.html`);
-                    return;
-                }
-
                 if (href.startsWith('/')) {
                     const linkedSlug = href.slice(1);
                     const matchedPage = allPages.find(p => p.get("slug") === linkedSlug);
@@ -153,17 +145,6 @@ const TopBar = ({ editorRef, device, setDevice, onSave, sliderToolbar, onSliderS
 
                     }
                     return;
-                }
-
-                // match by text
-                const text = link.textContent.trim().toLowerCase();
-                const matchedPage = allPages.find(p =>
-                    p.get('name')?.toLowerCase() === text ||
-                    p.get('slug')?.toLowerCase() === text
-                );
-
-                if (matchedPage) {
-                    link.setAttribute('href', `./${matchedPage.get('slug')}.html`);
                 }
             });
 
