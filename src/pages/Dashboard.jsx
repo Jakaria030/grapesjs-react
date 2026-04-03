@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 
 const Dashboard = () => {
-    const {isAuthenticated, logout } = useAuth();
+    const { isAuthenticated, logout } = useAuth();
     const { projects, loading, createProject, deleteProject } = useProjects();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const navigate = useNavigate();
@@ -15,7 +15,7 @@ const Dashboard = () => {
     const handleSubmit = async (data) => {
         const newProject = await createProject(data);
         setIsModalOpen(false);
-        navigate(`/editor/${newProject._id}`);
+        navigate(`/editor/${newProject.slug}`);
     };
 
     if (!isAuthenticated) {
@@ -59,12 +59,13 @@ const Dashboard = () => {
                                     <h2 className="project-title">{project.name}</h2>
                                     <p className="project-description">{project.description}</p>
                                     <div className="project-actions">
-                                        <button
+                                        <a
                                             className="edit-btn"
-                                            onClick={() => navigate(`/editor/${project._id}`)}
+                                            style={{ textDecoration: "none" }}
+                                            href={`/editor/${project.slug}`}
                                         >
                                             Edit
-                                        </button>
+                                        </a>
                                         <button
                                             className="delete-btn"
                                             onClick={() => deleteProject(project._id)}

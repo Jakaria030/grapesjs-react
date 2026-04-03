@@ -12,8 +12,8 @@ import SliderSettingsModal from '../components/editor/SliderSettingsModal';
 const Editor = () => {
     const editorRef = useRef(null);
     const [device, setDevice] = useState('desktop');
-    const { id } = useParams();
-    const { project, loading, saveProject } = useProject(id);
+    const { id, slug } = useParams();
+    const { project, loading, saveProject } = useProject(`${id}/${slug}`);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [assetProps, setAssetProps] = useState(null);
     const [sliderModalOpen, setSliderModalOpen] = useState(false);
@@ -165,7 +165,7 @@ const Editor = () => {
                     assetProps?.close();
                 }}
                 assetProps={assetProps}
-                projectId={id}
+                projectId={project._id}
             />
 
             <SliderSettingsModal
