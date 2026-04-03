@@ -134,6 +134,7 @@ const Editor = () => {
                 setDevice={setDevice}
                 onSave={handleSave}
                 sliderToolbar={sliderToolbar}
+                projectName={slug}
                 onSliderSettings={() => {
                     const comp = editorRef.current?.getSelected();
                     if (!comp) return;

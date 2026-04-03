@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CodeModal from './CodeModal';
 import { getHtmlCssJs } from '../../utils/getHtmlCssJs';
-import { buildFullHtml } from '../../utils/buildFullHtml';
+import { buildFullHtml, buildHtml } from '../../utils/buildFullHtml';
 
 const DEVICES = [
     { id: 'desktop', icon: '/assets/desktop-mac.png', label: 'Desktop' },
@@ -19,7 +19,7 @@ const DEVICE_MAP = {
     mobile: 'Mobile',
 };
 
-const TopBar = ({ editorRef, device, setDevice, onSave, sliderToolbar, onSliderSettings }) => {
+const TopBar = ({ editorRef, device, setDevice, onSave, sliderToolbar, onSliderSettings, projectName }) => {
     const [modalOpen, setModalOpen] = useState(false);
     const [modalContent, setModalContent] = useState({});
     const navigate = useNavigate();
@@ -62,9 +62,11 @@ const TopBar = ({ editorRef, device, setDevice, onSave, sliderToolbar, onSliderS
         const currentPageId = pm.getSelected()?.getId();
 
         const zip = new JSZip();
-        const folder = zip.folder('my-website');
+        const folder = zip.folder(projectName);
         const imagesFolder = folder.folder('assets/images');
         const videosFolder = folder.folder('assets/videos');
+        const stylesFolder = folder.folder('styles');
+        const scriptsFolder = folder.folder('scripts');
 
         // collect all media URLs from all pages
         const mediaMap = {}; // {originalUrl: localPath}
@@ -135,14 +137,21 @@ const TopBar = ({ editorRef, device, setDevice, onSave, sliderToolbar, onSliderS
 
                 if (href.startsWith('/preview/')) {
                     const linkedSlug = href.replace('/preview/', '');
-                    link.setAttribute('href', `${linkedSlug}.html`);
+                    link.setAttribute('href', `./${linkedSlug}.html`);
                     return;
                 }
 
                 if (href.startsWith('/')) {
                     const linkedSlug = href.slice(1);
                     const matchedPage = allPages.find(p => p.get("slug") === linkedSlug);
-                    if (matchedPage) link.setAttribute('href', `${linkedSlug}.html`);
+                    if (matchedPage) {
+                        if (matchedPage.get('type') === 'main') {
+                            link.setAttribute('href', `./index.html`);
+                        } else {
+                            link.setAttribute('href', `./${linkedSlug}.html`);
+                        }
+
+                    }
                     return;
                 }
 
@@ -154,11 +163,11 @@ const TopBar = ({ editorRef, device, setDevice, onSave, sliderToolbar, onSliderS
                 );
 
                 if (matchedPage) {
-                    link.setAttribute('href', `${matchedPage.get('slug')}.html`);
+                    link.setAttribute('href', `./${matchedPage.get('slug')}.html`);
                 }
             });
 
-            return doc.documentElement.outerHTML;
+            return doc.body.innerHTML;
         }
 
         // build HTML for each page
@@ -166,14 +175,20 @@ const TopBar = ({ editorRef, device, setDevice, onSave, sliderToolbar, onSliderS
             pm.select(page.getId());
 
             const { html, css, js } = getHtmlCssJs(editor);
-            const slug = page.get('slug') || 'index';
+
+            let slug = page.get('slug') || 'index';
+            if (page.get('type') === 'main') {
+                slug = 'index';
+            }
             const name = page.get('name') || 'Untitled';
 
             const srcRewritten = rewriteSrc(html);
             const linksRewritten = rewriteLinks(srcRewritten);
-            const fullHtml = buildFullHtml({html: linksRewritten, css, js, title: name});
+            const fullHtml = buildHtml({ html: linksRewritten, title: name, cssSrc: `${css && slug}`, scriptSrc: `${js && slug}` });
 
             folder.file(`${slug}.html`, fullHtml);
+            if (css) stylesFolder.file(`${slug}.css`, css);
+            if (js) scriptsFolder.file(`${slug}.js`, js);
         });
 
         // restore original page
@@ -184,7 +199,7 @@ const TopBar = ({ editorRef, device, setDevice, onSave, sliderToolbar, onSliderS
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'my-website.zip';
+        a.download = `${projectName}.zip`;
         a.click();
         URL.revokeObjectURL(url);
     };

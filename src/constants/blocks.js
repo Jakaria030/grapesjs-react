@@ -42,7 +42,6 @@ export const BLOCKS = [
         content: {
             type: 'heading',
             content: 'Heading',
-            style: { padding: '8px', fontSize: '28px', fontWeight: '700' },
         },
     },
     {
