@@ -7,7 +7,7 @@ import { useEditorEvents } from '../../hooks/useEditorEvents';
 import NewPageModal from './NewPageModal';
 import ThemePanel from './ThemePanel';
 
-const LeftSidebar = ({ editorRef }) => {
+const LeftSidebar = ({ editorRef, project }) => {
     const [collapsed, setCollapsed] = useState(false);
     const [activeTab, setActiveTab] = useState('blocks');
     const [newPageModal, setNewPageModal] = useState(false);
@@ -111,7 +111,9 @@ const LeftSidebar = ({ editorRef }) => {
                                     <div className="theme-header">
                                         <span className="theme-title">Theme Settings</span>
                                     </div>
-                                    <ThemePanel editorRef={editorRef} />
+                                    <ThemePanel editorRef={editorRef} project={project} onThemeChange={(theme) => {
+                                        editorRef.current._themeSettings = theme;
+                                    }} />
                                 </>
                             )}
                         </div>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const GOOGLE_FONTS = [
     'Inter', 'Roboto', 'Open Sans', 'Lato', 'Montserrat',
@@ -110,7 +110,7 @@ const HeadingRow = ({ tag, values, onChange }) => {
     );
 };
 
-const ThemePanel = ({ editorRef }) => {
+const ThemePanel = ({ editorRef, project, onThemeChange }) => {
     const [colors, setColors] = useState({
         primary: '#e94560',
         secondary: '#0f3460',
@@ -120,6 +120,17 @@ const ThemePanel = ({ editorRef }) => {
     });
     const [fontFamily, setFontFamily] = useState('Inter');
     const [headings, setHeadings] = useState(DEFAULT_HEADING_SIZES);
+
+    // sync from project data every time panel mounts or project changes
+    useEffect(() => {
+        const savedTheme = project?.gjsData?.theme ||
+            editorRef.current?._themeSettings;
+
+        if (!savedTheme) return;
+        if (savedTheme.fontFamily) setFontFamily(savedTheme.fontFamily);
+        if (savedTheme.headings) setHeadings(savedTheme.headings);
+        if (savedTheme.colors) setColors(savedTheme.colors);
+    }, [project]);
 
     const handleColorChange = (key, value) => {
         setColors(prev => ({ ...prev, [key]: value }));
@@ -132,9 +143,135 @@ const ThemePanel = ({ editorRef }) => {
         }));
     };
 
+    const handleApply = () => {
+        const editor = editorRef.current;
+        if (!editor) return;
+
+        const theme = { fontFamily, headings, colors };
+        editor._themeSettings = theme;
+        onThemeChange?.(theme);
+
+        const pm = editor.Pages;
+        const allPages = pm.getAll();
+        const currentPageId = pm.getSelected()?.getId();
+
+        allPages.forEach(page => {
+            pm.select(page.getId());
+            const cc = editor.CssComposer;
+
+            const toRemove = [];
+            cc.getAll().each(rule => {
+                const sel = rule.getSelectors()?.toString();
+                if (sel === ':root' || sel === 'body' || sel === 'a' || sel === 'p' || sel === 'button' || sel === 'input' || sel === 'textarea' || sel === 'select' || HEADINGS.includes(sel)) {
+                    toRemove.push(rule);
+                }
+            });
+            toRemove.forEach(r => cc.remove(r));
+
+
+            cc.setRule(':root', {
+                '--primary': colors.primary,
+                '--secondary': colors.secondary,
+                '--background': colors.background,
+                '--text': colors.text,
+                '--accent': colors.accent,
+                '--link-color': colors.primary,
+                '--btn-radius': '6px',
+                '--btn-padding': '10px 24px',
+                '--border-color': '#dddddd',
+                '--font-family': `'${fontFamily}', sans-serif`,
+                '--font-size-base': '16px',
+                '--line-height-base': '1.6',
+            });
+
+            cc.setRule('body', {
+                'font-family': 'var(--font-family)',
+                'color': 'var(--text)',
+                'background-color': 'var(--background)',
+            });
+
+            HEADINGS.forEach(tag => {
+                cc.setRule(tag, {
+                    'font-size': `${headings[tag].fontSize}px`,
+                    'font-weight': headings[tag].fontWeight,
+                    'line-height': headings[tag].lineHeight,
+                    'color': headings[tag].color,
+                    'font-family': 'var(--font-family)',
+                });
+            });
+
+            cc.setRule('button', {
+                'background-color': 'var(--primary)',
+                'color': 'var(--text)',
+                'border-radius': 'var(--btn-radius)',
+                'padding': 'var(--btn-padding)',
+                'font-family': 'var(--font-family)',
+                'border': 'none',
+                'cursor': 'pointer',
+                'font-weight': '600',
+            });
+
+            cc.setRule('a', {
+                'color': 'var(--link-color)',
+                'text-decoration': 'none',
+            });
+
+            cc.setRule('p', {
+                'font-family': 'var(--font-family)',
+                'color': 'var(--text)',
+                'font-size': 'var(--font-size-base)',
+                'line-height': 'var(--line-height-base)',
+            });
+
+            cc.setRule('input', {
+                'font-family': 'var(--font-family)',
+                'border': '1px solid var(--border-color)',
+                'border-radius': 'var(--btn-radius)',
+                'padding': '8px 12px',
+                'color': 'var(--text)',
+                'background': 'var(--background)',
+            });
+
+            cc.setRule('textarea', {
+                'font-family': 'var(--font-family)',
+                'border': '1px solid var(--border-color)',
+                'border-radius': 'var(--btn-radius)',
+                'padding': '8px 12px',
+                'color': 'var(--text)',
+                'background': 'var(--background)',
+            });
+
+            cc.setRule('select', {
+                'font-family': 'var(--font-family)',
+                'border': '1px solid var(--border-color)',
+                'border-radius': 'var(--btn-radius)',
+                'padding': '8px 12px',
+                'color': 'var(--text)',
+                'background': 'var(--background)',
+            });
+        });
+
+        pm.select(currentPageId);
+
+        const iframe = editor.Canvas.getFrameEl();
+        const doc = iframe?.contentDocument;
+        if (doc) {
+            const existing = doc.getElementById('theme-font');
+            if (existing) existing.remove();
+            const link = doc.createElement('link');
+            link.id = 'theme-font';
+            link.rel = 'stylesheet';
+            link.href = `https://fonts.googleapis.com/css2?family=${fontFamily.replace(/ /g, '+')}:wght@300;400;500;600;700;800&display=swap`;
+            doc.head.appendChild(link);
+        }
+
+        alert('Theme applied to all pages');
+
+    };
+
     return (
 
-        <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '4px', background: '#ffffff', minHeight: '100%' }}>
+        <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '4px', background: '#ffffff', minHeight: '100%', overflowY: 'auto', maxHeight: 'calc(100vh - 250px)', scrollbarWidth: 'thin', scrollbarColor: '#0f3460 transparent' }}>
             {/* Typography Section */}
             <Section title="Typography">
                 {/* Font Family */}
@@ -190,6 +327,23 @@ const ThemePanel = ({ editorRef }) => {
                 ))}
             </Section>
 
+            <button
+                onClick={handleApply}
+                style={{
+                    marginTop: '16px',
+                    padding: '10px',
+                    width: '100%',
+                    background: '#e94560',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                }}
+            >
+                Apply Theme
+            </button>
         </div>
 
 

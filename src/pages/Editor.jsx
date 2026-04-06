@@ -87,6 +87,13 @@ const Editor = () => {
 
         editorRef.current = editor;
 
+        editor.on('load', () => {
+            const savedTheme = project?.gjsData?.theme;
+            if (savedTheme) {
+                editor._themeSettings = savedTheme;
+            }
+        });
+
         return () => {
             if (editorRef.current) {
                 editorRef.current.destroy();
@@ -120,7 +127,10 @@ const Editor = () => {
     const handleSave = async () => {
         if (!editorRef.current) return;
         const gjsData = editorRef.current.getProjectData();
-        const ok = await saveProject(gjsData);
+        const ok = await saveProject({
+            ...gjsData,
+            theme: editorRef.current._themeSettings || null,
+        });
         if (ok) alert('Data saved!');
     };
 
@@ -152,7 +162,7 @@ const Editor = () => {
             />
 
             <div className="editor-body">
-                <LeftSidebar editorRef={editorRef} />
+                <LeftSidebar editorRef={editorRef} project={project} />
                 <div className="canvas-area">
                     <div id="gjs"></div>
                 </div>

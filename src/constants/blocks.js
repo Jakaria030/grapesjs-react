@@ -33,7 +33,7 @@ export const BLOCKS = [
         id: 'button',
         label: 'Button',
         media: `<img src='/assets/gesture-tap-button.png' draggable='false'/>`,
-        content: '<a href="#" style="display:inline-block;padding:10px 24px;background:#5b6cff;color:#fff;border-radius:6px;text-decoration:none;font-weight:600">Click Me</a>',
+        content: '<button>Click Me</button>',
     },
     {
         id: 'heading',
