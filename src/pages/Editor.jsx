@@ -184,14 +184,8 @@ const Editor = () => {
                 onClose={() => setSliderModalOpen(false)}
                 initialSlides={sliderInitialSlides}
                 initialSettings={sliderInitialSettings}
-                onConfirm={({ slideCount, settings }) => {
+                onConfirm={({ slides, settings }) => {
                     if (!sliderComponent) return;
-
-                    const slides = Array.from({ length: slideCount }, (_, i) => ({
-                        url: `https://placehold.co/800x400/ddd/000?text=Slide+${i + 1}`,
-                        caption: `Slide ${i + 1}`,
-                    }));
-
                     const html = buildSliderHTML({ slides, settings });
                     sliderComponent.components(html);
                 }}
