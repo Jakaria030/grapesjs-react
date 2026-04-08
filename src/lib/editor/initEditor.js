@@ -3,6 +3,7 @@ import 'grapesjs/dist/css/grapes.min.css';
 import { BLOCKS } from '../../constants/blocks';
 import { registerHeading } from './registerHeading';
 import { registerListeners } from './registerListeners';
+import tailwindPlugin from 'grapesjs-tailwindcss-plugin';
 
 export function buildSliderHTML({ slides, settings }) {
     const { showArrows, showPagination, paginationType, autoplay, autoplaySpeed } = settings;
@@ -156,6 +157,14 @@ export const initEditor = ({ gjsData, onAssetOpen } = {}) => {
         },
         allowScripts: 1,
         canvas: { styles: ['/static/canvasStyle.css'] },
+
+        plugins: [tailwindPlugin],
+        pluginsOpts: {
+            [tailwindPlugin]: {
+                autobuild: true,
+                autocomplete: false,
+            },
+        },
     });
 
 
@@ -198,6 +207,7 @@ export const initEditor = ({ gjsData, onAssetOpen } = {}) => {
         }
     });
 
+
     editor.on('load', () => {
         // prevent browser default ctrl+d
         window.addEventListener('keydown', (e) => {
@@ -205,7 +215,6 @@ export const initEditor = ({ gjsData, onAssetOpen } = {}) => {
                 e.preventDefault();
             }
         });
-
     });
 
     editor.Keymaps.add('duplicate', 'ctrl+d', 'duplicate-component');
