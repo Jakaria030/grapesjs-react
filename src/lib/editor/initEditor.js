@@ -4,6 +4,7 @@ import { BLOCKS } from '../../constants/blocks';
 import { registerHeading } from './registerHeading';
 import { registerListeners } from './registerListeners';
 import tailwindPlugin from 'grapesjs-tailwindcss-plugin';
+import { COMPONENTS } from '../../constants/components';
 
 export function buildSliderHTML({ slides, settings }) {
     const { showArrows, showPagination, paginationType, autoplay, autoplaySpeed } = settings;

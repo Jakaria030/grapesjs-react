@@ -8,9 +8,12 @@ import { useProject } from '../hooks/useProject';
 import Loading from '../components/ui/Loading';
 import AssetManagerModal from '../components/dashboard/AssetManagerModal';
 import SliderSettingsModal from '../components/editor/SliderSettingsModal';
+import { createButton, isSection, removeButton } from '../utils/sectionUtils';
+import ComponentsModal from '../components/editor/ComponentsModal';
 
 const Editor = () => {
     const editorRef = useRef(null);
+    const currentBtnRef = useRef(null);
     const [device, setDevice] = useState('desktop');
     const { id, slug } = useParams();
     const { project, loading, saveProject } = useProject(`${id}/${slug}`);
@@ -23,6 +26,10 @@ const Editor = () => {
     const [sliderInitialSlides, setSliderInitialSlides] = useState(null);
     const [sliderInitialSettings, setSliderInitialSettings] = useState(null);
 
+    const [isComponentsModalOpen, setIsComponentsModalOpen] = useState(false);
+    const [activeComponentTab, setActiveComponentTab] = useState("Header");
+    const selectedComponentRef = useRef(null);
+
     useEffect(() => {
         if (!project) return;
 
@@ -34,6 +41,22 @@ const Editor = () => {
             },
         });
 
+        const handleSelection = (component) => {
+            removeButton(currentBtnRef);
+
+            if (isSection(component)) {
+                currentBtnRef.current = createButton(component);
+
+
+                currentBtnRef.current.onclick = () => {
+                    selectedComponentRef.current = component;
+                    setIsComponentsModalOpen(true);
+                }
+            }
+        };
+
+        editor.on("component:selected", handleSelection);
+        editor.on("component:toggled", handleSelection);
 
         editor.on("block:drag:stop", (component) => {
             if (!component) return;
@@ -86,6 +109,8 @@ const Editor = () => {
         });
 
         editorRef.current = editor;
+
+        window._editor = editor;
 
         editor.on('load', () => {
             const savedTheme = project?.gjsData?.theme;
@@ -190,6 +215,15 @@ const Editor = () => {
                     sliderComponent.components(html);
                 }}
             />
+
+            {
+                isComponentsModalOpen && <ComponentsModal
+                    setIsComponentsModalOpen={setIsComponentsModalOpen}
+                    activeComponentTab={activeComponentTab}
+                    setActiveComponentTab={setActiveComponentTab}
+                    selectedComponentRef={selectedComponentRef}
+                />
+            }
 
         </div>
     );
