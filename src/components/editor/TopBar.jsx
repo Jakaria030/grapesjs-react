@@ -288,6 +288,17 @@ const TopBar = ({ editorRef, device, setDevice, onSave, sliderToolbar, onSliderS
                     ))}
                 </div>
 
+                {/* Dropdown (mobile) */}
+                <div className="topbar-device-dropdown">
+                    <select value={device} onChange={(e) => setDevice(e.target.value)}>
+                        {DEVICES.map((d) => (
+                            <option key={d.id} value={d.id}>
+                                {d.label}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
                 <div className="topbar-spacer" />
 
                 <button className="topbar-btn preview-btn" onClick={handlePreview}>👁 Preview</button>

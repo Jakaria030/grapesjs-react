@@ -43,17 +43,17 @@ export const useProject = (id) => {
     return { project, loading, saveProject };
 };
 
-export const useProjects = () => {
+export const useProjects = (projectType = "project") => {
     const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchProjects = async () => {
-            const res = await fetch(API, {
+            const res = await fetch(`${API}?projectType=${projectType}`, {
                 headers: {
                     'Content-Type': 'application/json',
                     "Authorization": `Bearer ${localStorage.getItem('token')}`
-                }
+                },
             });
             const data = await res.json();
 
@@ -88,4 +88,29 @@ export const useProjects = () => {
     };
 
     return { projects, loading, createProject, deleteProject };
+};
+
+export const useTemplate = (projectType = "template") => {
+    const [templates, setTemplates] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchTemplates = async () => {
+            const res = await fetch(`${API}/template?projectType=${projectType}`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    "Authorization": `Bearer ${localStorage.getItem('token')}`
+                },
+            });
+            const data = await res.json();
+
+            setTemplates(data);
+            setLoading(false);
+        };
+
+        fetchTemplates();
+    }, []);
+
+
+    return { templates, loading };
 };

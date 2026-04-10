@@ -1,6 +1,5 @@
 export const isSection = (component) => {
     const el = component?.getEl();
-    console.log(el.tagName)
     return el && (el.tagName === "SECTION" || el.tagName === "HEADER" || el.tagName === "MAIN" || el.tagName === "FOOTER");
 };
 
