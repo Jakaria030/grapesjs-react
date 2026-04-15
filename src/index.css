@@ -449,6 +449,15 @@ body,
     display: none;
 }
 
+.topbar-version-dropdown select {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #1a4a8a;
+    background: #0f3460;
+    color: #fff;
+    outline: none;
+}
+
 /* Mobile (<1200px): hide buttons, show dropdown */
 @media screen and (max-width: 1199px) {
     .topbar-device-group {

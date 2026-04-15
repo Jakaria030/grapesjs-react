@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 const API = 'http://localhost:3000/api/projects';
-
+const BASE_URL = 'http://localhost:3000/api';
 export const useProject = (id) => {
     const [project, setProject] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -29,18 +29,33 @@ export const useProject = (id) => {
     }, [id]);
 
     const saveProject = async (gjsData) => {
+        const response = await fetch(`${BASE_URL}/versions/${project._id}`);
+        const versions = await response.json();
+
         const res = await fetch(`${API}/${id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
                 "Authorization": `Bearer ${localStorage.getItem('token')}`
             },
-            body: JSON.stringify({ ...project, gjsData }),
+            body: JSON.stringify({ ...project, gjsData, currentVersion: versions.length + 1 }),
         });
+        const updatedProject = await res.json();
+
+        await fetch(`${BASE_URL}/versions`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                projectId: updatedProject._id,
+            }),
+        });
+
         return res.ok;
     };
 
-    return { project, loading, saveProject };
+    return { project, setProject, loading, saveProject };
 };
 
 export const useProjects = (projectType = "project") => {

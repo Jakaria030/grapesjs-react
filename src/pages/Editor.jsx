@@ -10,13 +10,14 @@ import AssetManagerModal from '../components/dashboard/AssetManagerModal';
 import SliderSettingsModal from '../components/editor/SliderSettingsModal';
 import { createButton, isSection, removeButton } from '../utils/sectionUtils';
 import ComponentsModal from '../components/editor/ComponentsModal';
+import useVersion from '../hooks/useVersion';
 
 const Editor = () => {
     const editorRef = useRef(null);
     const currentBtnRef = useRef(null);
     const [device, setDevice] = useState('desktop');
     const { id, slug } = useParams();
-    const { project, loading, saveProject } = useProject(`${id}/${slug}`);
+    const { project, setProject, loading, saveProject } = useProject(`${id}/${slug}`);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [assetProps, setAssetProps] = useState(null);
     const [sliderModalOpen, setSliderModalOpen] = useState(false);
@@ -156,7 +157,9 @@ const Editor = () => {
             ...gjsData,
             theme: editorRef.current._themeSettings || null,
         });
-        if (ok) alert('Data saved!');
+        if (ok) {
+            window.location.reload();
+        }
     };
 
     if (loading) return <Loading />;
@@ -170,6 +173,8 @@ const Editor = () => {
                 onSave={handleSave}
                 sliderToolbar={sliderToolbar}
                 projectName={slug}
+                project={project}
+                setProject={setProject}
                 onSliderSettings={() => {
                     const comp = editorRef.current?.getSelected();
                     if (!comp) return;

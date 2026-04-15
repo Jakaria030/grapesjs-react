@@ -4,6 +4,8 @@ import templateImage from "/assets/template.jpg";
 import { useAI } from '../../hooks/useAI';
 import Loading from '../ui/Loading';
 
+const BASE_URL = "http://localhost:3000";
+
 const CreateProjectModal = ({ isOpen, onClose, onSubmit, modalFor = "project" }) => {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
@@ -78,7 +80,7 @@ const CreateProjectModal = ({ isOpen, onClose, onSubmit, modalFor = "project" })
                                 {/* Static image */}
                                 <div>
                                     <img
-                                        src={templateImage}
+                                        src={`${template.thumbnail ? `${BASE_URL}/${template.thumbnail}` : templateImage}`}
                                         alt="Template"
                                         style={{ width: "100%", height: "80px", objectFit: "cover" }}
                                     />
