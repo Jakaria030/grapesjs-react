@@ -1,28 +1,34 @@
 import { useState } from 'react';
 import { useTemplate } from '../../hooks/useProject';
 import templateImage from "/assets/template.jpg";
+import { useAI } from '../../hooks/useAI';
+import Loading from '../ui/Loading';
 
 const CreateProjectModal = ({ isOpen, onClose, onSubmit, modalFor = "project" }) => {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
-    const [gjsData, setGjsData] = useState({});
-    const { templates: allTemplates, loading } = useTemplate("template");
+    const [templateId, setTemplateId] = useState(null);
+    const { templates: allTemplates, loading: loadingTemplate } = useTemplate("template");
+    const { generateContent, loading: loadingGenerate, error } = useAI()
 
     if (!isOpen) return null;
 
-    const handleSubmit = () => {
-        if (!name || Object.keys(gjsData).length === 0) {
-            alert("Project name and template is required!");
-            return;
-        };
+    const handleSubmit = async () => {
+        try {
+            const aiGjsData = await generateContent({ name, description, templateId }) || {};
 
-        onSubmit({ name, description, gjsData, projectType: modalFor });
-        setName('');
-        setDescription('');
+            onSubmit({ name, description, gjsData: aiGjsData, projectType: modalFor });
+            setName('');
+            setDescription('');
+        } catch (error) {
+            alert("AI generation failed");
+        }
     };
 
 
     const templates = [...allTemplates.filter((template) => template.name === "Blank Template"), ...allTemplates.filter((template) => template.name !== "Blank Template")];
+
+    if (loadingGenerate) return <Loading />
 
     return (
         <div className="modal-overlay">
@@ -47,7 +53,7 @@ const CreateProjectModal = ({ isOpen, onClose, onSubmit, modalFor = "project" })
 
                 <div style={{ margin: "10px 0", height: "1px", background: "#ddd" }} />
 
-                {loading ? <p style={{ marginTop: "8px", fontSize: "14px" }}>Template loading...</p> : templates && templates.length > 0 ? (
+                {loadingTemplate ? <p style={{ marginTop: "8px", fontSize: "14px" }}>Template loading...</p> : templates && templates.length > 0 ? (
                     <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
                         {templates.map((template) => (
                             <label
@@ -66,7 +72,7 @@ const CreateProjectModal = ({ isOpen, onClose, onSubmit, modalFor = "project" })
                                     type="radio"
                                     name="template"
                                     value={template._id}
-                                    onChange={() => setGjsData(template.gjsData)}
+                                    onChange={() => setTemplateId(template._id)}
                                 />
 
                                 {/* Static image */}
