@@ -5,6 +5,8 @@ const BASE_URL = 'http://localhost:3000/api';
 export const useProject = (id) => {
     const [project, setProject] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [undoStack, setUndoStack] = useState([]);
+    const [redoStack, setRedoStack] = useState([]);
 
     useEffect(() => {
         const fetchProject = async () => {
@@ -21,12 +23,21 @@ export const useProject = (id) => {
             });
             const data = await res.json();
 
-            setProject(data);
+            // TODO: using data._id and data.currentVersion complete next Undo/Redo task
+            const historiesData = await getHistories(data._id, data.currentVersion);
+
+            setUndoStack(historiesData);
+            setProject(historiesData.length === 0 ? data : historiesData[historiesData.length - 1].historyData);
             setLoading(false);
         }
 
         fetchProject();
     }, [id]);
+
+    const getHistories = async (id, versionNo) => {
+        const historiesRes = await fetch(`${BASE_URL}/history?projectId=${id}&versionNo=${versionNo}`);
+        return await historiesRes.json();
+    };
 
     const saveProject = async (gjsData) => {
         const response = await fetch(`${BASE_URL}/versions/${project._id}`);
@@ -55,7 +66,68 @@ export const useProject = (id) => {
         return res.ok;
     };
 
-    return { project, setProject, loading, saveProject };
+    const saveHistory = async (projectData) => {
+        try {
+            const res = await fetch(`${BASE_URL}/history`, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                    "Authorization": `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify({ projectId: project._id, historyData: projectData }),
+            });
+
+            const data = await res.json();
+
+            setUndoStack([...undoStack, data]);
+            setProject(data.historyData);
+
+            if (undoStack.length >= 20) {
+                const history = undoStack.shift();
+                await deleteHistory(history._id);
+            }
+        } catch (error) {
+            console.log("Something went wrong")
+        }
+    };
+
+    const deleteHistory = async (id) => {
+        try {
+            await fetch(`${BASE_URL}/history/${id}`, {
+                method: "DELETE",
+                headers: {
+                    'Content-Type': 'application/json',
+                    "Authorization": `Bearer ${localStorage.getItem('token')}`
+                },
+            });
+        } catch (error) {
+            console.log("Something went wrong")
+        }
+    }
+
+    const handleUndo = async () => {
+        if (undoStack.length <= 1) {
+            return alert("You can't undo anymore. Go back to the previous version.");
+        }
+
+        const history = undoStack.pop();
+        setRedoStack([...redoStack, history]);
+        setProject(undoStack[undoStack.length - 1].historyData);
+        await deleteHistory(history._id);
+    };
+
+    const handleRedo = async () => {
+        if (redoStack.length === 0) {
+            return alert("You can't redo anymore.");
+        }
+
+        const history = redoStack.pop();
+        setUndoStack([...undoStack, history]);
+        setProject(history.historyData);
+        await saveHistory(history.historyData);
+    };
+
+    return { project, setProject, loading, saveProject, saveHistory, handleUndo, handleRedo, getHistories };
 };
 
 export const useProjects = (projectType = "project") => {

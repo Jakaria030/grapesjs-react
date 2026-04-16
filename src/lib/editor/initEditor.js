@@ -166,6 +166,8 @@ export const initEditor = ({ gjsData, onAssetOpen } = {}) => {
                 autocomplete: false,
             },
         },
+
+        
     });
 
 
@@ -216,6 +218,11 @@ export const initEditor = ({ gjsData, onAssetOpen } = {}) => {
                 e.preventDefault();
             }
         });
+
+        const um = editor.UndoManager;
+
+        um.clear();
+        um.stop();
     });
 
     editor.Keymaps.add('duplicate', 'ctrl+d', 'duplicate-component');

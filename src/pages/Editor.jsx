@@ -10,14 +10,13 @@ import AssetManagerModal from '../components/dashboard/AssetManagerModal';
 import SliderSettingsModal from '../components/editor/SliderSettingsModal';
 import { createButton, isSection, removeButton } from '../utils/sectionUtils';
 import ComponentsModal from '../components/editor/ComponentsModal';
-import useVersion from '../hooks/useVersion';
 
 const Editor = () => {
     const editorRef = useRef(null);
     const currentBtnRef = useRef(null);
     const [device, setDevice] = useState('desktop');
     const { id, slug } = useParams();
-    const { project, setProject, loading, saveProject } = useProject(`${id}/${slug}`);
+    const { project, setProject, loading, saveProject, saveHistory, handleUndo, handleRedo, getHistories } = useProject(`${id}/${slug}`);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [assetProps, setAssetProps] = useState(null);
     const [sliderModalOpen, setSliderModalOpen] = useState(false);
@@ -31,6 +30,10 @@ const Editor = () => {
     const [activeComponentTab, setActiveComponentTab] = useState("Header");
     const selectedComponentRef = useRef(null);
 
+    const timeoutRef = useRef(null);
+    const isSavingRef = useRef(false);
+    const lastSavedRef = useRef(null);
+
     useEffect(() => {
         if (!project) return;
 
@@ -41,6 +44,40 @@ const Editor = () => {
                 setIsModalOpen(true);
             },
         });
+
+        const handleUpdate = () => {
+            clearTimeout(timeoutRef.current);
+
+            timeoutRef.current = setTimeout(async () => {
+                if (isSavingRef.current) return;
+
+                const currentData = editor.getProjectData();
+                const currentString = JSON.stringify(currentData);
+
+                // avoid duplicate saves
+                if (currentString === lastSavedRef.current) return;
+
+                isSavingRef.current = true;
+
+                try {
+                    const data = {
+                        ...project,
+                        gjsData: currentData,
+                    };
+
+                    await saveHistory(data);
+
+                    lastSavedRef.current = currentString;
+                } catch (err) {
+                    console.error("saveHistory failed", err);
+                } finally {
+                    isSavingRef.current = false;
+                }
+            }, 400);
+        };
+
+        editor.on("")
+        editor.on("update", handleUpdate);
 
         const handleSelection = (component) => {
             removeButton(currentBtnRef);
@@ -120,12 +157,12 @@ const Editor = () => {
             }
         });
 
-        return () => {
-            if (editorRef.current) {
-                editorRef.current.destroy();
-                editorRef.current = null;
-            }
-        };
+        // return () => {
+        //     if (editorRef.current) {
+        //         editorRef.current.destroy();
+        //         editorRef.current = null;
+        //     }
+        // };
     }, [project]);
 
     const getSliderDataFromComponent = (component) => {
@@ -175,6 +212,9 @@ const Editor = () => {
                 projectName={slug}
                 project={project}
                 setProject={setProject}
+                handleUndo={handleUndo}
+                handleRedo={handleRedo}
+                getHistories={getHistories}
                 onSliderSettings={() => {
                     const comp = editorRef.current?.getSelected();
                     if (!comp) return;

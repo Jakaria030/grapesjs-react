@@ -20,18 +20,14 @@ const DEVICE_MAP = {
     mobile: 'Mobile',
 };
 
-const TopBar = ({ editorRef, device, setDevice, onSave, sliderToolbar, onSliderSettings, projectName, project, setProject }) => {
+const TopBar = ({ editorRef, device, setDevice, onSave, sliderToolbar, onSliderSettings, projectName, project, setProject, handleUndo, handleRedo, getHistories }) => {
     const [modalOpen, setModalOpen] = useState(false);
     const [modalContent, setModalContent] = useState({});
     const navigate = useNavigate();
     const { versions, loading, getVersionData, saveVersionData } = useVersion(project._id);
     const [version, setVersion] = useState(project.currentVersion);
 
-
     const getEditor = () => editorRef.current;
-
-    const handleUndo = () => getEditor()?.UndoManager.undo();
-    const handleRedo = () => getEditor()?.UndoManager.redo();
 
     const handleReset = () => {
         const editor = getEditor();
@@ -277,7 +273,9 @@ const TopBar = ({ editorRef, device, setDevice, onSave, sliderToolbar, onSliderS
             gjsData: data.versionData.gjsData,
         }
 
-        setProject(updatedProject);
+        const histories = await getHistories(updatedProject._id, updatedProject.currentVersion);
+
+        setProject(histories.length === 0 ? updatedProject : histories[histories.length - 1].historyData);
         setVersion(versionNo);
 
         const id = Number(updatedProject.slug.split("/")[0]);
@@ -306,7 +304,7 @@ const TopBar = ({ editorRef, device, setDevice, onSave, sliderToolbar, onSliderS
                 <div className="topbar-version-dropdown">
                     {loading ? (<p>Loading</p>) : (
                         <select value={version} onChange={handleVersionChange}>
-                            {versions.map((v) => (
+                            {versions?.map((v) => (
                                 <option key={v._id} value={v.versionNo}>
                                     {`V${v.versionNo}`}
                                 </option>

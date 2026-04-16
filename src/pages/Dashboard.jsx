@@ -6,6 +6,8 @@ import { useProjects } from '../hooks/useProject';
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 
+const BASE_URL = 'http://localhost:3000/api';
+
 const Dashboard = () => {
     const { isAuthenticated, isAdmin, logout } = useAuth();
     const { projects, loading, createProject, deleteProject } = useProjects();
@@ -14,6 +16,14 @@ const Dashboard = () => {
 
     const handleSubmit = async (data) => {
         const newProject = await createProject(data);
+        await fetch(`${BASE_URL}/history`, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+                "Authorization": `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify({ projectId: newProject._id, historyData: newProject })
+        })
         setIsModalOpen(false);
         navigate(`/editor/${newProject.slug}`);
     };
