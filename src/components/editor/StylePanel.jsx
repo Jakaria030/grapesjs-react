@@ -251,6 +251,74 @@ const LinkSection = ({ selectedEl, editorRef }) => {
     );
 };
 
+// ── Class Manager ───────────────────────────────────────────
+const ClassManager = ({ selectedEl }) => {
+    const [classes, setClasses] = useState([]);
+    const [input, setInput] = useState('');
+
+    useEffect(() => {
+        if (!selectedEl) return;
+        setClasses(selectedEl.getClasses());
+    }, [selectedEl]);
+
+    const handleAdd = () => {
+        const trimmed = input.trim();
+        if (!trimmed || !selectedEl) return;
+
+        // support multiple classes at once like "bg-red-500 p-4 text-white"
+        const newClasses = trimmed.split(' ').filter(Boolean);
+        newClasses.forEach(cls => selectedEl.addClass(cls));
+        setClasses(selectedEl.getClasses());
+        setInput('');
+    };
+
+    const handleRemove = (cls) => {
+        if (!selectedEl) return;
+        selectedEl.removeClass(cls);
+        setClasses(selectedEl.getClasses());
+    };
+
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') handleAdd();
+    };
+
+    return (
+        <div>
+            {/* Input */}
+            <div style={{ display: 'flex', gap: '6px'}}>
+                <input
+                    type="text"
+                    value={input}
+                    onChange={e => setInput(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="e.g. bg-red-500 p-4"
+                    style={{ flex: 1, padding: '5px 8px', background: '#0F34600D', border: '1px solid #0F34601F', borderRadius: '6px', color: '#0f3460', fontSize: '12px', outline: 'none' }}
+                />
+                <button
+                    onClick={handleAdd}
+                    style={{ padding: '5px 10px', background: '#e94560', border: 'none', borderRadius: '6px', color: 'white', fontSize: '12px', cursor: 'pointer', fontWeight: 600 }}
+                >+</button>
+            </div>
+
+            {/* Class tags */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '8px' }}>
+                {classes.length === 0 && (
+                    <span style={{ color: '#555', fontSize: '12px' }}>No classes added</span>
+                )}
+                {classes.map(cls => (
+                    <div key={cls} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: '#0f3460', padding: '3px 8px', borderRadius: '4px', border: '1px solid #3a3a5a' }}>
+                        <span style={{ color: '#ddd', fontSize: '12px' }}>{cls}</span>
+                        <button
+                            onClick={() => handleRemove(cls)}
+                            style={{ background: 'none', border: 'none', color: '#e94560', cursor: 'pointer', fontSize: '12px', padding: '0', lineHeight: 1 }}
+                        >✕</button>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
 // ── Main Style Panel ──────────────────────────────────────
 
 const StylePanel = ({ selectedEl, styles, onChange, editorRef }) => {
@@ -271,8 +339,13 @@ const StylePanel = ({ selectedEl, styles, onChange, editorRef }) => {
                 <LinkSection selectedEl={selectedEl} editorRef={editorRef} />
             )}
 
+            {/* ── Class Add ── */}
+            <Section title="Add Classes">
+                <ClassManager editorRef={editorRef} selectedEl={selectedEl} />
+            </Section>
+
             {/* ── Dimension ── */}
-            <Section title="Dimension" defaultOpen={false}>
+            <Section title="Dimension">
                 {DIMENSION_PROPS.map((p) => (
                     <PixelInput key={p.property} {...p} unit="px" styles={styles} onChange={onChange} />
                 ))}

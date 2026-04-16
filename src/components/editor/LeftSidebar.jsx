@@ -5,8 +5,9 @@ import HeadingToolbar from './HeadingToolbar';
 import PagesPanel from "./PagesPanel";
 import { useEditorEvents } from '../../hooks/useEditorEvents';
 import NewPageModal from './NewPageModal';
+import ThemePanel from './ThemePanel';
 
-const LeftSidebar = ({ editorRef }) => {
+const LeftSidebar = ({ editorRef, project }) => {
     const [collapsed, setCollapsed] = useState(false);
     const [activeTab, setActiveTab] = useState('blocks');
     const [newPageModal, setNewPageModal] = useState(false);
@@ -53,6 +54,13 @@ const LeftSidebar = ({ editorRef }) => {
                             >
                                 Pages
                             </button>
+                            <button
+                                className={`tab-btn ${activeTab === 'theme' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('theme')}
+                            >
+                                Theme
+                            </button>
+
                         </div>
 
                         <div className="tab-content">
@@ -95,6 +103,17 @@ const LeftSidebar = ({ editorRef }) => {
                                         <button className="pages-new-btn" onClick={() => setNewPageModal(true)}>+ New Page</button>
                                     </div>
                                     <PagesPanel editorRef={editorRef} onEdit={(page) => setEditPage(page)} />
+                                </>
+                            )}
+
+                            {activeTab === 'theme' && (
+                                <>
+                                    <div className="theme-header">
+                                        <span className="theme-title">Theme Settings</span>
+                                    </div>
+                                    <ThemePanel editorRef={editorRef} project={project} onThemeChange={(theme) => {
+                                        editorRef.current._themeSettings = theme;
+                                    }} />
                                 </>
                             )}
                         </div>

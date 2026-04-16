@@ -3,6 +3,8 @@ import 'grapesjs/dist/css/grapes.min.css';
 import { BLOCKS } from '../../constants/blocks';
 import { registerHeading } from './registerHeading';
 import { registerListeners } from './registerListeners';
+import tailwindPlugin from 'grapesjs-tailwindcss-plugin';
+import { COMPONENTS } from '../../constants/components';
 
 export function buildSliderHTML({ slides, settings }) {
     const { showArrows, showPagination, paginationType, autoplay, autoplaySpeed } = settings;
@@ -156,6 +158,16 @@ export const initEditor = ({ gjsData, onAssetOpen } = {}) => {
         },
         allowScripts: 1,
         canvas: { styles: ['/static/canvasStyle.css'] },
+
+        plugins: [tailwindPlugin],
+        pluginsOpts: {
+            [tailwindPlugin]: {
+                autobuild: true,
+                autocomplete: false,
+            },
+        },
+
+        
     });
 
 
@@ -180,6 +192,40 @@ export const initEditor = ({ gjsData, onAssetOpen } = {}) => {
     // Register custom component types and listeners
     registerHeading(editor);
     registerListeners(editor, { onAssetOpen });
+
+    // register duplicate command
+    editor.Commands.add('duplicate-component', {
+        run(editor) {
+            const selected = editor.getSelected();
+            if (!selected) return;
+
+            const parent = selected.parent();
+            if (!parent) return;
+
+            const index = selected.index();
+            const cloned = selected.clone();
+
+            parent.components().add(cloned, { at: index + 1 });
+            editor.select(cloned);
+        }
+    });
+
+
+    editor.on('load', () => {
+        // prevent browser default ctrl+d
+        window.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'd') {
+                e.preventDefault();
+            }
+        });
+
+        const um = editor.UndoManager;
+
+        um.clear();
+        um.stop();
+    });
+
+    editor.Keymaps.add('duplicate', 'ctrl+d', 'duplicate-component');
 
     if (gjsData) {
         editor.loadProjectData(gjsData);

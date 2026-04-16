@@ -8,6 +8,7 @@ const PagesPanel = ({ editorRef, onEdit }) => {
         const editor = editorRef.current;
         if (!editor) return;
         const pm = editor.Pages;
+
         setActivePage(pm.getSelected()?.getId());
         setPages(pm.getAll().map(p => ({
             id: p.getId(),
@@ -41,8 +42,13 @@ const PagesPanel = ({ editorRef, onEdit }) => {
         if (!editor) return;
 
         const pm = editor.Pages;
-        if (pm.getAll().length === 1) {
-            alert('Cannot delete the last page.');
+
+        const pageToDeleted = pm.get(pageId);
+
+        if(!pageToDeleted) return;
+
+        if (pageToDeleted.get('type') === 'main') {
+            alert('Cannot delete the Main page.');
             return;
         }
 

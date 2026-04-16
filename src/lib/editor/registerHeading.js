@@ -7,7 +7,7 @@ export const registerHeading = (editor) => {
 
         model: {
             defaults: {
-                tagName: 'h2',
+                tagName: 'h1',
                 droppable: false,
                 editable: true,
                 traits: [

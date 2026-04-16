@@ -1,8 +1,10 @@
+import JSZip from 'jszip';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CodeModal from './CodeModal';
 import { getHtmlCssJs } from '../../utils/getHtmlCssJs';
-import { buildFullHtml } from '../../utils/buildFullHtml';
+import { buildFullHtml, buildHtml } from '../../utils/buildFullHtml';
+import useVersion from '../../hooks/useVersion';
 
 const DEVICES = [
     { id: 'desktop', icon: '/assets/desktop-mac.png', label: 'Desktop' },
@@ -18,17 +20,14 @@ const DEVICE_MAP = {
     mobile: 'Mobile',
 };
 
-const TopBar = ({ editorRef, device, setDevice, onSave, sliderToolbar, onSliderSettings }) => {
+const TopBar = ({ editorRef, device, setDevice, onSave, sliderToolbar, onSliderSettings, projectName, project, setProject, handleUndo, handleRedo, getHistories }) => {
     const [modalOpen, setModalOpen] = useState(false);
     const [modalContent, setModalContent] = useState({});
     const navigate = useNavigate();
-
-
+    const { versions, loading, getVersionData, saveVersionData } = useVersion(project._id);
+    const [version, setVersion] = useState(project.currentVersion);
 
     const getEditor = () => editorRef.current;
-
-    const handleUndo = () => getEditor()?.UndoManager.undo();
-    const handleRedo = () => getEditor()?.UndoManager.redo();
 
     const handleReset = () => {
         const editor = getEditor();
@@ -38,16 +37,148 @@ const TopBar = ({ editorRef, device, setDevice, onSave, sliderToolbar, onSliderS
         editor.UndoManager.clear();
     };
 
-    const handleExport = () => {
+    // const handleExport = () => {
+    //     const editor = getEditor();
+    //     if (!editor) return;
+
+    //     const fullHtml = buildFullHtml({ ...getHtmlCssJs(editor), title: 'My Page' });
+    //     const blob = new Blob([fullHtml], { type: 'text/html' });
+    //     const url = URL.createObjectURL(blob);
+    //     const a = document.createElement('a');
+    //     a.href = url;
+    //     a.download = 'my-page.html';
+    //     a.click();
+    //     URL.revokeObjectURL(url);
+    // };
+
+    const handleExport = async () => {
         const editor = getEditor();
         if (!editor) return;
 
-        const fullHtml = buildFullHtml({ ...getHtmlCssJs(editor), title: 'My Page' });
-        const blob = new Blob([fullHtml], { type: 'text/html' });
+        const pm = editor.Pages;
+        const allPages = pm.getAll();
+        const currentPageId = pm.getSelected()?.getId();
+
+        const zip = new JSZip();
+        const folder = zip.folder(projectName);
+        const imagesFolder = folder.folder('assets/images');
+        const videosFolder = folder.folder('assets/videos');
+        const stylesFolder = folder.folder('styles');
+        const scriptsFolder = folder.folder('scripts');
+
+        // collect all media URLs from all pages
+        const mediaMap = {}; // {originalUrl: localPath}
+
+        const collectMedia = (html) => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+
+            doc.querySelectorAll('img[src], video[src], source[src]').forEach(el => {
+                const src = el.getAttribute('src');
+                if (!src || !src.startsWith('http://localhost:3000')) return;
+                if (mediaMap[src]) return; // already collected
+
+                const filename = src.split('/').pop();
+                const isVideo = src.includes('/videos/');
+                const localPath = isVideo ? `assets/videos/${filename}` : `assets/images/${filename}`;
+
+                mediaMap[src] = localPath;
+            });
+        };
+
+        //  collect media from all pages first
+        allPages.forEach(page => {
+            pm.select(page.getId());
+            const { html } = getHtmlCssJs(editor);
+            collectMedia(html);
+        });
+
+
+        // collect media from all pages first
+        const downloadMedia = async () => {
+            const entries = Object.entries(mediaMap);
+            for (const [url, localPath] of entries) {
+                try {
+                    const res = await fetch(url);
+                    const blob = await res.blob();
+                    const isVideo = localPath.includes('/videos/');
+                    if (isVideo) {
+                        videosFolder.file(localPath.split('/').pop(), blob);
+                    } else {
+                        imagesFolder.file(localPath.split('/').pop(), blob);
+                    }
+                } catch (error) {
+                    console.warn('failed to download', url);
+                }
+            }
+        }
+
+        await downloadMedia();
+
+        // rewrite src URLs in HTML
+        const rewriteSrc = (html) => {
+            let result = html;
+            Object.entries(mediaMap).forEach(([originalUrl, localPath]) => {
+                result = result.replaceAll(originalUrl, localPath);
+            });
+            return result;
+        };
+
+        // rewrite href links
+        const rewriteLinks = (html) => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+
+            doc.querySelectorAll('a[href]').forEach(link => {
+                const href = link.getAttribute('href');
+                if (href.startsWith('/')) {
+                    const linkedSlug = href.slice(1);
+                    const matchedPage = allPages.find(p => p.get("slug") === linkedSlug);
+                    if (matchedPage) {
+                        if (matchedPage.get('type') === 'main') {
+                            link.setAttribute('href', `./index.html`);
+                        } else {
+                            link.setAttribute('href', `./${linkedSlug}.html`);
+                        }
+
+                    }
+                    return;
+                }
+            });
+
+            return doc.body.innerHTML;
+        }
+
+        // build HTML for each page
+        allPages.forEach(page => {
+            pm.select(page.getId());
+
+            const { html, css, js } = getHtmlCssJs(editor);
+
+            let slug = page.get('slug') || 'index';
+            if (page.get('type') === 'main') {
+                slug = 'index';
+            }
+            const name = page.get('name') || 'Untitled';
+
+            const srcRewritten = rewriteSrc(html);
+            const linksRewritten = rewriteLinks(srcRewritten);
+            const fullHtml = buildHtml({ html: linksRewritten, title: name, cssSrc: `${css && slug}`, scriptSrc: `${js && slug}` });
+
+            folder.file(`${slug}.html`, fullHtml);
+            if (css) stylesFolder.file(`${slug}.css`, css);
+            if (js) scriptsFolder.file(`${slug}.js`, js);
+        });
+
+        // restore original page
+        pm.select(currentPageId);
+
+        // generate and download zip
+        const blob = await zip.generateAsync({ type: 'blob' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'my-page.html';
+        a.download = `${projectName}.zip`;
         a.click();
         URL.revokeObjectURL(url);
     };
@@ -128,6 +259,36 @@ const TopBar = ({ editorRef, device, setDevice, onSave, sliderToolbar, onSliderS
         editor.DeviceManager.select(DEVICE_MAP[device]);
     }, [device]);
 
+
+    const handleVersionChange = async (e) => {
+        const versionNo = Number(e.target.value);
+
+        const data = await getVersionData(versionNo);
+
+        const updatedProject = {
+            ...project,
+            currentVersion: data.versionNo,
+            name: data.versionData.name,
+            description: data.versionData.description,
+            gjsData: data.versionData.gjsData,
+        }
+
+        const histories = await getHistories(updatedProject._id, updatedProject.currentVersion);
+
+        setProject(histories.length === 0 ? updatedProject : histories[histories.length - 1].historyData);
+        setVersion(versionNo);
+
+        const id = Number(updatedProject.slug.split("/")[0]);
+        const projectName = updatedProject.slug.split("/")[1];
+        const updatedData = {
+            gjsData: updatedProject.gjsData,
+            name: updatedProject.name,
+            description: updatedProject.description,
+            currentVersion: updatedProject.currentVersion
+        }
+        await saveVersionData(id, projectName, updatedData);
+    }
+
     return (
         <>
             <div className="topbar">
@@ -139,6 +300,19 @@ const TopBar = ({ editorRef, device, setDevice, onSave, sliderToolbar, onSliderS
 
                 <div className="topbar-divider" />
                 {sliderToolbar && <button className="topbar-btn" onClick={onSliderSettings}>⚙ Settings</button>}
+
+                <div className="topbar-version-dropdown">
+                    {loading ? (<p>Loading</p>) : (
+                        <select value={version} onChange={handleVersionChange}>
+                            {versions?.map((v) => (
+                                <option key={v._id} value={v.versionNo}>
+                                    {`V${v.versionNo}`}
+                                </option>
+                            ))}
+
+                        </select>
+                    )}
+                </div>
 
                 <div className="topbar-spacer" />
 
@@ -153,6 +327,17 @@ const TopBar = ({ editorRef, device, setDevice, onSave, sliderToolbar, onSliderS
                             <img src={d.icon} alt={d.label} draggable="false" />
                         </button>
                     ))}
+                </div>
+
+                {/* Dropdown (mobile) */}
+                <div className="topbar-device-dropdown">
+                    <select value={device} onChange={(e) => setDevice(e.target.value)}>
+                        {DEVICES.map((d) => (
+                            <option key={d.id} value={d.id}>
+                                {d.label}
+                            </option>
+                        ))}
+                    </select>
                 </div>
 
                 <div className="topbar-spacer" />

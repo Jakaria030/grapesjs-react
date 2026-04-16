@@ -8,12 +8,15 @@ import { useProject } from '../hooks/useProject';
 import Loading from '../components/ui/Loading';
 import AssetManagerModal from '../components/dashboard/AssetManagerModal';
 import SliderSettingsModal from '../components/editor/SliderSettingsModal';
+import { createButton, isSection, removeButton } from '../utils/sectionUtils';
+import ComponentsModal from '../components/editor/ComponentsModal';
 
 const Editor = () => {
     const editorRef = useRef(null);
+    const currentBtnRef = useRef(null);
     const [device, setDevice] = useState('desktop');
-    const { id } = useParams();
-    const { project, loading, saveProject } = useProject(id);
+    const { id, slug } = useParams();
+    const { project, setProject, loading, saveProject, saveHistory, handleUndo, handleRedo, getHistories } = useProject(`${id}/${slug}`);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [assetProps, setAssetProps] = useState(null);
     const [sliderModalOpen, setSliderModalOpen] = useState(false);
@@ -22,6 +25,14 @@ const Editor = () => {
 
     const [sliderInitialSlides, setSliderInitialSlides] = useState(null);
     const [sliderInitialSettings, setSliderInitialSettings] = useState(null);
+
+    const [isComponentsModalOpen, setIsComponentsModalOpen] = useState(false);
+    const [activeComponentTab, setActiveComponentTab] = useState("Header");
+    const selectedComponentRef = useRef(null);
+
+    const timeoutRef = useRef(null);
+    const isSavingRef = useRef(false);
+    const lastSavedRef = useRef(null);
 
     useEffect(() => {
         if (!project) return;
@@ -34,6 +45,56 @@ const Editor = () => {
             },
         });
 
+        const handleUpdate = () => {
+            clearTimeout(timeoutRef.current);
+
+            timeoutRef.current = setTimeout(async () => {
+                if (isSavingRef.current) return;
+
+                const currentData = editor.getProjectData();
+                const currentString = JSON.stringify(currentData);
+
+                // avoid duplicate saves
+                if (currentString === lastSavedRef.current) return;
+
+                isSavingRef.current = true;
+
+                try {
+                    const data = {
+                        ...project,
+                        gjsData: currentData,
+                    };
+
+                    await saveHistory(data);
+
+                    lastSavedRef.current = currentString;
+                } catch (err) {
+                    console.error("saveHistory failed", err);
+                } finally {
+                    isSavingRef.current = false;
+                }
+            }, 400);
+        };
+
+        editor.on("")
+        editor.on("update", handleUpdate);
+
+        const handleSelection = (component) => {
+            removeButton(currentBtnRef);
+
+            if (isSection(component)) {
+                currentBtnRef.current = createButton(component);
+
+
+                currentBtnRef.current.onclick = () => {
+                    selectedComponentRef.current = component;
+                    setIsComponentsModalOpen(true);
+                }
+            }
+        };
+
+        editor.on("component:selected", handleSelection);
+        editor.on("component:toggled", handleSelection);
 
         editor.on("block:drag:stop", (component) => {
             if (!component) return;
@@ -87,12 +148,21 @@ const Editor = () => {
 
         editorRef.current = editor;
 
-        return () => {
-            if (editorRef.current) {
-                editorRef.current.destroy();
-                editorRef.current = null;
+        window._editor = editor;
+
+        editor.on('load', () => {
+            const savedTheme = project?.gjsData?.theme;
+            if (savedTheme) {
+                editor._themeSettings = savedTheme;
             }
-        };
+        });
+
+        // return () => {
+        //     if (editorRef.current) {
+        //         editorRef.current.destroy();
+        //         editorRef.current = null;
+        //     }
+        // };
     }, [project]);
 
     const getSliderDataFromComponent = (component) => {
@@ -120,8 +190,13 @@ const Editor = () => {
     const handleSave = async () => {
         if (!editorRef.current) return;
         const gjsData = editorRef.current.getProjectData();
-        const ok = await saveProject(gjsData);
-        if (ok) alert('Data saved!');
+        const ok = await saveProject({
+            ...gjsData,
+            theme: editorRef.current._themeSettings || null,
+        });
+        if (ok) {
+            window.location.reload();
+        }
     };
 
     if (loading) return <Loading />;
@@ -134,6 +209,12 @@ const Editor = () => {
                 setDevice={setDevice}
                 onSave={handleSave}
                 sliderToolbar={sliderToolbar}
+                projectName={slug}
+                project={project}
+                setProject={setProject}
+                handleUndo={handleUndo}
+                handleRedo={handleRedo}
+                getHistories={getHistories}
                 onSliderSettings={() => {
                     const comp = editorRef.current?.getSelected();
                     if (!comp) return;
@@ -151,7 +232,7 @@ const Editor = () => {
             />
 
             <div className="editor-body">
-                <LeftSidebar editorRef={editorRef} />
+                <LeftSidebar editorRef={editorRef} project={project} />
                 <div className="canvas-area">
                     <div id="gjs"></div>
                 </div>
@@ -165,7 +246,7 @@ const Editor = () => {
                     assetProps?.close();
                 }}
                 assetProps={assetProps}
-                projectId={id}
+                projectId={project._id}
             />
 
             <SliderSettingsModal
@@ -173,18 +254,21 @@ const Editor = () => {
                 onClose={() => setSliderModalOpen(false)}
                 initialSlides={sliderInitialSlides}
                 initialSettings={sliderInitialSettings}
-                onConfirm={({ slideCount, settings }) => {
+                onConfirm={({ slides, settings }) => {
                     if (!sliderComponent) return;
-
-                    const slides = Array.from({ length: slideCount }, (_, i) => ({
-                        url: `https://placehold.co/800x400/ddd/000?text=Slide+${i + 1}`,
-                        caption: `Slide ${i + 1}`,
-                    }));
-
                     const html = buildSliderHTML({ slides, settings });
                     sliderComponent.components(html);
                 }}
             />
+
+            {
+                isComponentsModalOpen && <ComponentsModal
+                    setIsComponentsModalOpen={setIsComponentsModalOpen}
+                    activeComponentTab={activeComponentTab}
+                    setActiveComponentTab={setActiveComponentTab}
+                    selectedComponentRef={selectedComponentRef}
+                />
+            }
 
         </div>
     );

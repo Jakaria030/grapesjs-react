@@ -1,16 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const SliderSettingsModal = ({ isOpen, onClose, onConfirm, initialSlides, initialSettings }) => {
-    const [slideCount, setSlideCount] = useState(3);
+    const [slides, setSlides] = useState([]); // Managed image list
     const [showArrows, setShowArrows] = useState(true);
     const [showPagination, setShowPagination] = useState(true);
     const [paginationType, setPaginationType] = useState('dots');
     const [autoplay, setAutoplay] = useState(true);
     const [autoplaySpeed, setAutoplaySpeed] = useState(3000);
 
+    const fileInputRef = useRef(null);
+
     useEffect(() => {
         if (!isOpen) return;
-        setSlideCount(initialSlides?.length ?? 3);
+        setSlides(initialSlides || []);
         setShowArrows(initialSettings?.showArrows ?? true);
         setShowPagination(initialSettings?.showPagination ?? true);
         setPaginationType(initialSettings?.paginationType ?? 'dots');
@@ -20,9 +22,34 @@ const SliderSettingsModal = ({ isOpen, onClose, onConfirm, initialSlides, initia
 
     if (!isOpen) return null;
 
+    // --- Image Logic ---
+    const handleFileUpload = (e) => {
+        const files = Array.from(e.target.files);
+        const newSlides = files.map(file => ({
+            id: Math.random().toString(36).substr(2, 9),
+            url: URL.createObjectURL(file),
+            file: file
+        }));
+        const updated = [...slides, ...newSlides];
+        setSlides(updated);
+    };
+
+    const removeSlide = (index) => {
+        const updated = slides.filter((_, i) => i !== index);
+        setSlides(updated);
+    };
+
+    const moveSlide = (index, direction) => {
+        const updated = [...slides];
+        const newIndex = index + direction;
+        if (newIndex < 0 || newIndex >= updated.length) return;
+        [updated[index], updated[newIndex]] = [updated[newIndex], updated[index]];
+        setSlides(updated);
+    };
+
     const handleConfirm = () => {
         onConfirm({
-            slideCount,
+            slides,
             settings: { showArrows, showPagination, paginationType, autoplay, autoplaySpeed }
         });
         onClose();
@@ -40,17 +67,6 @@ const SliderSettingsModal = ({ isOpen, onClose, onConfirm, initialSlides, initia
 
                 {/* Body */}
                 <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-
-                    {/* Slide Count */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ color: '#ccc', fontSize: '13px' }}>Number of Slides</span>
-                        <input
-                            type="number" min={1} max={20} value={slideCount}
-                            onChange={e => setSlideCount(Number(e.target.value))}
-                            style={{ width: '70px', padding: '5px 8px', background: '#0f0f1f', border: '1px solid #3a3a5a', borderRadius: '6px', color: 'white', textAlign: 'center' }}
-                        />
-                    </div>
-
                     {/* Arrows */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span style={{ color: '#ccc', fontSize: '13px' }}>Show Arrows</span>
@@ -120,6 +136,41 @@ const SliderSettingsModal = ({ isOpen, onClose, onConfirm, initialSlides, initia
                         </div>
                     )}
 
+                </div>
+
+                {/* Images Section */}
+                <div style={{ padding: '16px 20px', borderTop: '1px solid #2a2a4a' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                        <span style={{ fontSize: '14px', fontWeight: 600 }}>Slider Images ({slides.length})</span>
+                        <button
+                            onClick={() => fileInputRef.current.click()}
+                            style={{ padding: '4px 10px', background: '#3a3a5a', border: 'none', borderRadius: '4px', color: 'white', fontSize: '12px', cursor: 'pointer' }}
+                        >
+                            + Upload
+                        </button>
+                        <input type="file" multiple hidden ref={fileInputRef} onChange={handleFileUpload} accept="image/*" />
+                    </div>
+
+                    {/* Image Grid */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+                        {slides.map((slide, index) => (
+                            <div key={slide.id || index} style={{ position: 'relative', height: '80px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #3a3a5a', background: '#0f0f1f' }}>
+                                <img src={slide.url} alt="slide" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+
+                                {/* Overlay Controls */}
+                                <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', justifyContent: 'center', alignItems: 'center', opacity: 0, transition: '0.2s', hover: 'opacity: 1' }} onMouseEnter={e => e.currentTarget.style.opacity = 1} onMouseLeave={e => e.currentTarget.style.opacity = 0}>
+                                    <button onClick={() => moveSlide(index, -1)} style={{ background: 'white', border: 'none', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer', margin: '2px' }}>‹</button>
+                                    <button onClick={() => removeSlide(index)} style={{ background: '#ff4d4d', border: 'none', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer', margin: '2px', color: 'white' }}>×</button>
+                                    <button onClick={() => moveSlide(index, 1)} style={{ background: 'white', border: 'none', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer', margin: '2px' }}>›</button>
+                                </div>
+
+                                {/* Order Badge */}
+                                <div style={{ position: 'absolute', top: '4px', left: '4px', background: '#5b6cff', color: 'white', fontSize: '10px', padding: '2px 5px', borderRadius: '4px' }}>
+                                    {index + 1}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
 
                 {/* Footer */}

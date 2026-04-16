@@ -16,6 +16,8 @@
     "@uiw/react-codemirror": "^4.25.8",
     "codemirror": "^6.0.2",
     "grapesjs": "^0.22.14",
+    "grapesjs-tailwindcss-plugin": "^0.1.10",
+    "jszip": "^3.10.1",
     "prettier": "^3.8.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

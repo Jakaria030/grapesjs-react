@@ -6,24 +6,14 @@ import { useProjects } from '../hooks/useProject';
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 
-const BASE_URL = 'http://localhost:3000/api';
-
-const Dashboard = () => {
+const Template = () => {
     const { isAuthenticated, isAdmin, logout } = useAuth();
-    const { projects, loading, createProject, deleteProject } = useProjects();
+    const { projects, loading, createProject, deleteProject } = useProjects("template");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const navigate = useNavigate();
 
     const handleSubmit = async (data) => {
         const newProject = await createProject(data);
-        await fetch(`${BASE_URL}/history`, {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json',
-                "Authorization": `Bearer ${localStorage.getItem('token')}`
-            },
-            body: JSON.stringify({ projectId: newProject._id, historyData: newProject })
-        })
         setIsModalOpen(false);
         navigate(`/editor/${newProject.slug}`);
     };
@@ -37,13 +27,13 @@ const Dashboard = () => {
     return (
         <>
             <header className="dashboard-header">
-                <h1 className="dashboard-title">My Projects</h1>
+                <h1 className="dashboard-title">My Templates</h1>
                 <div style={{ display: "flex", gap: "10px" }}>
                     <button className="btn" onClick={() => setIsModalOpen(true)}>
-                        + New Project
+                        + New Template
                     </button>
-                    {isAdmin && <button className="btn" onClick={() => navigate("/template")}>
-                        Template
+                    {isAdmin && <button className="btn" onClick={() => navigate("/dashboard")}>
+                        Dashboard
                     </button>}
                     <button
                         className="btn"
@@ -57,7 +47,7 @@ const Dashboard = () => {
             <main className="dashboard-main">
                 <section className="projects-section">
                     {projects.length === 0 && (
-                        <p className="empty-text">No projects yet. Create one!</p>
+                        <p className="empty-text">No Template yet. Create one!</p>
                     )}
 
                     <div className="projects-grid">
@@ -97,10 +87,10 @@ const Dashboard = () => {
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onSubmit={handleSubmit}
-                modalFor={"project"}
+                modalFor={"template"}
             />
         </>
     );
 };
 
-export default Dashboard;
+export default Template;
