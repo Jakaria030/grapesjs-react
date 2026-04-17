@@ -5,6 +5,9 @@ import Loading from '../components/ui/Loading';
 import { useProjects } from '../hooks/useProject';
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { IoIosTimer } from "react-icons/io";
+import { LuTimer } from "react-icons/lu";
+import { formatDateTime } from '../utils/formatDateTime';
 
 const BASE_URL = 'http://localhost:3000/api';
 
@@ -13,6 +16,7 @@ const Dashboard = () => {
     const { projects, loading, createProject, deleteProject } = useProjects();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const navigate = useNavigate();
+
 
     const handleSubmit = async (data) => {
         const newProject = await createProject(data);
@@ -85,6 +89,17 @@ const Dashboard = () => {
                                         >
                                             Delete
                                         </button>
+                                    </div>
+
+                                    <div style={{ marginTop: "12px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                                        <div style={{ display: "flex", alignItems: "center", gap: "2px" }} title='Last Modified'>
+                                            <IoIosTimer style={{color: "#666"}}/>
+                                            <span style={{ fontSize: "12px", color: "#666" }}>{formatDateTime(project.updatedAt)}</span>
+                                        </div>
+                                        <div style={{ display: "flex", alignItems: "center", gap: "2px" }} title='Create Time'>
+                                            <LuTimer style={{color: "#666"}} />
+                                            <span style={{ fontSize: "12px", color: "#666" }}>{formatDateTime(project.createdAt)}</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
